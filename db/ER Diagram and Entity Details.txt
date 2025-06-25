@@ -1,0 +1,49 @@
+ER Diagram and Entity Details
+
+1. Artisan (Rural Person)
+ - ArtisanID (PK)
+ - Name
+ - Address
+ - ContactNumber
+ - AadhaarCardNumber 
+ - AgreementStatus (Pending, Signed)
+ - RegistrationDate
+
+2. Handcrafted Item
+ - ItemID (PK)
+ - ArtisanID (FK)
+ - Name
+ - Description
+ - Category
+ - Price
+ - Quantity
+ - UploadDate
+ - Status (Available / Sold / Draft)
+
+3. Platform Listing
+ - ListingID (PK)
+ - ItemID (FK)
+ - PlatformName (e.g., Amazon, Flipkart)
+ - ListingURL
+ - ListingDate
+ - Status (Active/Inactive)
+
+4. Admin / Portal Operator
+ - AdminID (PK)
+ - Name
+ - ContactNumber
+ - Email
+ - Role
+
+5. Agreement Document
+ - AgreementID (PK)
+ - ArtisanID (FK)
+ - FilePath / Document
+ - DateSigned
+ - ValidUntil
+
+Relationships:
+- One Artisan can create many Handcrafted Items
+- One Item can be listed on multiple Platforms
+- One Artisan fills one or more Agreements
+- Admin manages all records (optional)
