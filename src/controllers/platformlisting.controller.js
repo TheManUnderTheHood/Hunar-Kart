@@ -1,4 +1,4 @@
-import { PlatformListing } from "../models/PlatformListing.js";
+import { PlatformListing } from "../models/PlatformListing.model.js";
 
 const createPlatformListing = async (req, res) => {
     try {

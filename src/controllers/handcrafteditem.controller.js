@@ -1,4 +1,4 @@
-import { HandcraftedItem } from "../models/HandcraftedItem.js";
+import { HandcraftedItem } from "../models/HandcraftedItem.model.js";
 
 const createHandcraftedItem = async (req, res) => {
     try {

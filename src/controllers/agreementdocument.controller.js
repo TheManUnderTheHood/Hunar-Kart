@@ -1,4 +1,4 @@
-import { AgreementDocument } from "../models/AgreementDocument.js";
+import { AgreementDocument } from "../models/AgreementDocument.model.js";
 
 const createAgreementDocument = async (req, res) => {
     try {

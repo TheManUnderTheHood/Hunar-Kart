@@ -1,4 +1,4 @@
-import { Sale } from "../models/Sales.js";
+import { Sale } from "../models/Sales.model.js";
 
 const createSale = async (req, res) => {
     try {

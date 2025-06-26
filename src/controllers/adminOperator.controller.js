@@ -1,4 +1,4 @@
-import { AdminOperator } from "../models/AdminOperator.js";
+import { AdminOperator } from "../models/AdminOperator.model.js";
 
 // Create a new artisan
 const createAdminOperator = async (req, res) => {
