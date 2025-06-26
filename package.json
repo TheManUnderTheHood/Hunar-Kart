@@ -1,0 +1,28 @@
+{
+  "name": "hunar-kart",
+  "version": "1.0.0",
+  "description": "Hunar Kart App",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config --experimental-json-modules  src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "Hunar-Kart"
+  },
+  "keywords": [
+    "Node",
+    "JS"
+  ],
+  "author": "Team 23",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.16.0"
+  }
+}
