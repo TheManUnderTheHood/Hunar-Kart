@@ -1,21 +1,49 @@
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { Sale } from "../models/Sales.model.js";
+import mongoose from "mongoose";
 
-const createSale = async (req, res) => {
-    try {
-        const sale = await Sale.create(req.body);
-        res.status(201).json({ success: true, data: sale });
-    } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
-    }
-};
+const createSale = asyncHandler(async (req, res) => {
+    const { itemID, artisanID, platformName, quantitySold, totalRevenue } = req.body;
 
-const getAllSale = async (req, res) => {
-    try {
-        const sale = await Sale.find({});
-        res.status(200).json({ success: true, count: sale.length, data: sale });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server Error" });
+    const requiredFields = { itemID, artisanID, platformName, quantitySold, totalRevenue };
+    for (const [field, value] of Object.entries(requiredFields)) {
+        if (!value) {
+            throw new ApiError(400, `${field} is required`);
+        }
     }
-};
+
+    if (!mongoose.Types.ObjectId.isValid(itemID) || !mongoose.Types.ObjectId.isValid(artisanID)) {
+        throw new ApiError(400, "Invalid Item ID or Artisan ID format");
+    }
+
+    const sale = await Sale.create({
+        itemID,
+        artisanID,
+        platformName,
+        quantitySold,
+        totalRevenue,
+    });
+
+    if (!sale) {
+        throw new ApiError(500, "Failed to record the sale");
+    }
+
+    return res.status(201).json(
+        new ApiResponse(201, sale, "Sale recorded successfully")
+    );
+});
+
+const getAllSale = asyncHandler(async (req, res) => {
+    // Here we use populate twice to get data from two different related collections.
+    const sales = await Sale.find({})
+        .populate("itemID", "name category price")
+        .populate("artisanID", "name");
+
+    return res.status(200).json(
+        new ApiResponse(200, { count: sales.length, sales }, "Sales data retrieved successfully")
+    );
+});
 
 export { createSale, getAllSale };

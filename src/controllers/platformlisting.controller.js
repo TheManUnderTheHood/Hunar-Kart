@@ -1,21 +1,43 @@
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { PlatformListing } from "../models/PlatformListing.model.js";
+import mongoose from "mongoose";
 
-const createPlatformListing = async (req, res) => {
-    try {
-        const platformlisting = await PlatformListing.create(req.body);
-        res.status(201).json({ success: true, data: platformlisting });
-    } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
-    }
-};
+const createPlatformListing = asyncHandler(async (req, res) => {
+    const { itemID, platformName, listingURL, status } = req.body;
 
-const getAllPlatformListing = async (req, res) => {
-    try {
-        const platformlisting = await PlatformListing.find({});
-        res.status(200).json({ success: true, count: platformlisting.length, data: platformlisting });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server Error" });
+    if (!itemID || !platformName) {
+        throw new ApiError(400, "Item ID and platform name are required");
     }
-};
+
+    if (!mongoose.Types.ObjectId.isValid(itemID)) {
+        throw new ApiError(400, "Invalid Item ID format");
+    }
+
+    const listing = await PlatformListing.create({
+        itemID,
+        platformName,
+        listingURL,
+        status,
+    });
+
+    if (!listing) {
+        throw new ApiError(500, "Failed to create the platform listing");
+    }
+
+    return res.status(201).json(
+        new ApiResponse(201, listing, "Platform listing created successfully")
+    );
+});
+
+const getAllPlatformListing = asyncHandler(async (req, res) => {
+    // Populate with item's name and price for more context
+    const listings = await PlatformListing.find({}).populate("itemID", "name price");
+
+    return res.status(200).json(
+        new ApiResponse(200, { count: listings.length, listings }, "Platform listings retrieved successfully")
+    );
+});
 
 export { createPlatformListing, getAllPlatformListing };
