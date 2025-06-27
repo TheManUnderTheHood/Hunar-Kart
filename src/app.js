@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser"; // <-- ADD THIS
 
 const app = express();
 
@@ -9,11 +10,12 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json({ limit: "16kb" })); // To parse JSON request bodies
-app.use(express.urlencoded({ extended: true, limit: "16kb" })); // To parse URL-encoded data
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(cookieParser()); // <-- ADD THIS
 
 // --- Routes ---
-// Import routers (example for artisan, you'll add more)
+// Import routers
 import artisanRouter from "./routes/artisan.routes.js";
 import adminoperatorRouter from "./routes/adminoperator.routes.js";
 import agreementdocumentRouter from "./routes/agreementdocument.routes.js";
@@ -33,8 +35,16 @@ app.get("/", (req, res) => {
         `);
 });
 
-app.use("/api/v1/artisans", artisanRouter);
+// Public Routes (like login/register)
 app.use("/api/v1/adminoperator", adminoperatorRouter);
+
+// Protected Routes (everything else)
+import { verifyJWT } from "./middlewares/auth.middleware.js"; // <-- ADD THIS
+
+// Now, all routes below this line will require authentication
+app.use(verifyJWT); // <-- ADD THIS GLOBAL MIDDLEWARE FOR PROTECTED ROUTES
+
+app.use("/api/v1/artisans", artisanRouter);
 app.use("/api/v1/agreementdocument", agreementdocumentRouter);
 app.use("/api/v1/sales", salesRouter);
 app.use("/api/v1/handcrafteditem", handcrafteditemRouter);
@@ -44,6 +54,5 @@ app.use("/api/v1/platformlisting", platformlistingRouter);
 app.get("/health", (req, res) => {
     res.status(200).json({ status: "OK", message: "Server is healthy" });
 });
-
 
 export { app };

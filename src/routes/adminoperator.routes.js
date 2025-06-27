@@ -1,10 +1,20 @@
 import { Router } from "express";
-import { createAdminOperator, getAllAdminOperator } from "../controllers/adminOperator.controller.js";
+import { 
+    registerAdminOperator, 
+    loginAdminOperator, 
+    logoutAdminOperator,
+    getAllAdminOperator 
+} from "../controllers/adminOperator.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("/")
-    .post(createAdminOperator)
-    .get(getAllAdminOperator);
+// Public Routes
+router.route("/register").post(registerAdminOperator);
+router.route("/login").post(loginAdminOperator);
+
+// Secured Routes
+router.route("/logout").post(verifyJWT, logoutAdminOperator);
+router.route("/").get(verifyJWT, getAllAdminOperator); // Get all operators is now a protected route
 
 export default router;

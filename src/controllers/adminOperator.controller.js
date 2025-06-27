@@ -1,21 +1,128 @@
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { AdminOperator } from "../models/AdminOperator.model.js";
 
-const createAdminOperator = async (req, res) => {
+const generateAccessAndRefreshTokens = async(userId) => {
     try {
-        const adminoperator = await AdminOperator.create(req.body);
-        res.status(201).json({ success: true, data: adminoperator });
-    } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
-    }
-};
+        const user = await AdminOperator.findById(userId);
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
 
-const getAllAdminOperator = async (req, res) => {
-    try {
-        const adminoperator = await AdminOperator.find({});
-        res.status(200).json({ success: true, count: adminoperator.length, data: adminoperator });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server Error" });
-    }
-};
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
 
-export { createAdminOperator, getAllAdminOperator };
+        return { accessToken, refreshToken };
+
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating refresh and access tokens");
+    }
+}
+
+const registerAdminOperator = asyncHandler(async (req, res) => {
+    const { name, email, contactNumber, password, role } = req.body;
+
+    if ([name, email, contactNumber, password].some((field) => field?.trim() === "")) {
+        throw new ApiError(400, "All fields are required");
+    }
+
+    const existedUser = await AdminOperator.findOne({ email });
+    if (existedUser) {
+        throw new ApiError(409, "User with this email already exists");
+    }
+
+    const user = await AdminOperator.create({
+        name,
+        email,
+        contactNumber,
+        password,
+        role
+    });
+
+    const createdUser = await AdminOperator.findById(user._id).select("-password -refreshToken");
+
+    if (!createdUser) {
+        throw new ApiError(500, "Something went wrong while registering the user");
+    }
+
+    return res.status(201).json(
+        new ApiResponse(201, createdUser, "User registered successfully")
+    );
+});
+
+const loginAdminOperator = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        throw new ApiError(400, "Email and password are required");
+    }
+
+    const user = await AdminOperator.findOne({ email });
+    if (!user) {
+        throw new ApiError(404, "User does not exist");
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password);
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid user credentials");
+    }
+
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+
+    const loggedInUser = await AdminOperator.findById(user._id).select("-password -refreshToken");
+
+    const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' // use secure cookies in production
+    };
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                { user: loggedInUser, accessToken, refreshToken },
+                "User logged in successfully"
+            )
+        );
+});
+
+const logoutAdminOperator = asyncHandler(async (req, res) => {
+    await AdminOperator.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: { refreshToken: undefined }
+        },
+        { new: true }
+    );
+    
+    const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production'
+    };
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "User logged out"));
+});
+
+
+const getAllAdminOperator = asyncHandler(async (req, res) => {
+    // This route is now protected, only logged-in users can access it.
+    // You could add role-based logic here, e.g., only 'Admin' can see all operators.
+    // if (req.user.role !== 'Admin') {
+    //     throw new ApiError(403, "Forbidden: You do not have permission to perform this action.");
+    // }
+
+    const adminOperators = await AdminOperator.find({}).select("-password -refreshToken");
+    return res.status(200).json(
+        new ApiResponse(200, { count: adminOperators.length, operators: adminOperators }, "Admin operators fetched successfully")
+    );
+});
+
+
+// We no longer need a separate "create" function, as register handles it.
+export { registerAdminOperator, loginAdminOperator, logoutAdminOperator, getAllAdminOperator };
