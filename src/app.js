@@ -26,7 +26,10 @@ app.get("/", (req, res) => {
     res.send(`<h1>Hunar Kart API</h1><p>You are viewing this on a forwarded port.</p>
         <p><a href="/api/v1/artisans">View Artisans API</a></p>
         <p><a href="/api/v1/adminoperator">View Admin Operators API</a></p>
+        <p><a href="/api/v1/agreementdocument">View Agreement Document API</a></p>
+        <p><a href="/api/v1/sales">View Sales API</a></p>
         <p><a href="/api/v1/handcrafteditem">View Handcrafted Items API</a></p>
+        <p><a href="/api/v1/platformlisting">View Platform Listing API</a></p>
         `);
 });
 
