@@ -1,6 +1,5 @@
 import { Artisan } from "../models/Artisan.model.js";
 
-// Create a new artisan
 const createArtisan = async (req, res) => {
     try {
         const artisan = await Artisan.create(req.body);
@@ -10,7 +9,6 @@ const createArtisan = async (req, res) => {
     }
 };
 
-// Get all artisans
 const getAllArtisans = async (req, res) => {
     try {
         const artisans = await Artisan.find({});

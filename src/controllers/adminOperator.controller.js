@@ -1,6 +1,5 @@
 import { AdminOperator } from "../models/AdminOperator.model.js";
 
-// Create a new artisan
 const createAdminOperator = async (req, res) => {
     try {
         const adminoperator = await AdminOperator.create(req.body);
@@ -10,7 +9,6 @@ const createAdminOperator = async (req, res) => {
     }
 };
 
-// Get all adminoperator
 const getAllAdminOperator = async (req, res) => {
     try {
         const adminoperator = await AdminOperator.find({});
