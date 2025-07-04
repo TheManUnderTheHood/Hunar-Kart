@@ -21,6 +21,9 @@ const generateAccessAndRefreshTokens = async(userId) => {
 }
 
 const registerAdminOperator = asyncHandler(async (req, res) => {
+    if (!req.body) {
+        return res.status(400).json({ message: "Request body is missing" });
+    }
     const { name, email, contactNumber, password, role } = req.body;
 
     if ([name, email, contactNumber, password].some((field) => field?.trim() === "")) {
@@ -132,41 +135,4 @@ function getPublicIdFromUrl(url) {
     return publicId;
 }
 
-const updateUserAvatar = asyncHandler(async(req, res) => {
-    const avatarLocalPath = req.file?.path
-
-    if (!avatarLocalPath) {
-        throw new ApiError(400, "Avatar file is missing")
-    }
-
-    const currentUser = await AdminOperator.findById(req.user?._id);
-
-    if(currentUser?.avatar){
-        const publicId = getPublicIdFromUrl(currentUser.avatar);
-        await removeFromCloudinary(publicId);
-    }
-
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
-
-    if (!avatar.url) {
-        throw new ApiError(400, "Error while uploading on avatar")
-        
-    }
-
-    const user = await AdminOperator.findByIdAndUpdate(
-        req.user?._id,
-        {
-            $set:{
-                avatar: avatar.url
-            }
-        },
-        {new: true}
-    ).select("-password")
-
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(200, user, "Avatar image updated successfully")
-    )
-})
-export { registerAdminOperator, loginAdminOperator, logoutAdminOperator, getAllAdminOperator, updateUserAvatar};
+export { registerAdminOperator, loginAdminOperator, logoutAdminOperator, getAllAdminOperator};
