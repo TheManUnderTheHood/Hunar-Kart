@@ -1,6 +1,14 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser"; // <-- ADD THIS
+import { verifyJWT } from "./middlewares/auth.middleware.js";
+
+import artisanRouter from "./routes/artisan.routes.js";
+import adminoperatorRouter from "./routes/adminoperator.routes.js";
+import agreementdocumentRouter from "./routes/agreementdocument.routes.js";
+import salesRouter from "./routes/sales.routes.js";
+import handcrafteditemRouter from "./routes/handcrafteditem.routes.js";
+import platformlistingRouter from "./routes/platformlisting.routes.js";
 
 const app = express();
 
@@ -14,18 +22,9 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser()); // <-- ADD THIS
 
-// --- Routes ---
-// Import routers
-import artisanRouter from "./routes/artisan.routes.js";
-import adminoperatorRouter from "./routes/adminoperator.routes.js";
-import agreementdocumentRouter from "./routes/agreementdocument.routes.js";
-import salesRouter from "./routes/sales.routes.js";
-import handcrafteditemRouter from "./routes/handcrafteditem.routes.js";
-import platformlistingRouter from "./routes/platformlisting.routes.js";
-
 // --- Route Declaration ---
 app.get("/", (req, res) => {
-    res.send(`<h1>Hunar Kart API</h1><p>You are viewing this on a forwarded port.</p>
+    res.send(`<h1>Hunar Kart API</h1>
         <p><a href="/api/v1/artisans">View Artisans API</a></p>
         <p><a href="/api/v1/adminoperator">View Admin Operators API</a></p>
         <p><a href="/api/v1/agreementdocument">View Agreement Document API</a></p>
@@ -39,11 +38,10 @@ app.get("/", (req, res) => {
 app.use("/api/v1/adminoperator", adminoperatorRouter);
 
 // Protected Routes (everything else)
-import { verifyJWT } from "./middlewares/auth.middleware.js"; // <-- ADD THIS
+
+app.use(verifyJWT); 
 
 // Now, all routes below this line will require authentication
-app.use(verifyJWT); // <-- ADD THIS GLOBAL MIDDLEWARE FOR PROTECTED ROUTES
-
 app.use("/api/v1/artisans", artisanRouter);
 app.use("/api/v1/agreementdocument", agreementdocumentRouter);
 app.use("/api/v1/sales", salesRouter);
