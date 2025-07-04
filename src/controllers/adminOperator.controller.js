@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { AdminOperator } from "../models/AdminOperator.model.js";
+import {uploadOnCloudinary, removeFromCloudinary} from "../utils/cloudinary.js";
 
 const generateAccessAndRefreshTokens = async(userId) => {
     try {
@@ -27,12 +28,19 @@ const registerAdminOperator = asyncHandler(async (req, res) => {
     }
 
     const existedUser = await AdminOperator.findOne({ email });
+
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
+
+    // Upload the avatar file from its temporary local path to Cloudinary.
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
     if (existedUser) {
         throw new ApiError(409, "User with this email already exists");
     }
 
     const user = await AdminOperator.create({
         name,
+        avatar: avatar?.url || "",
         email,
         contactNumber,
         password,
@@ -109,13 +117,7 @@ const logoutAdminOperator = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "User logged out"));
 });
 
-
 const getAllAdminOperator = asyncHandler(async (req, res) => {
-    // This route is now protected, only logged-in users can access it.
-    // You could add role-based logic here, e.g., only 'Admin' can see all operators.
-    // if (req.user.role !== 'Admin') {
-    //     throw new ApiError(403, "Forbidden: You do not have permission to perform this action.");
-    // }
 
     const adminOperators = await AdminOperator.find({}).select("-password -refreshToken");
     return res.status(200).json(
@@ -123,6 +125,48 @@ const getAllAdminOperator = asyncHandler(async (req, res) => {
     );
 });
 
+function getPublicIdFromUrl(url) {
+    const parts = url.split('/');
+    const fileWithExtension = parts[parts.length - 1];
+    const publicId = fileWithExtension.substring(0, fileWithExtension.lastIndexOf('.'));
+    return publicId;
+}
 
-// We no longer need a separate "create" function, as register handles it.
-export { registerAdminOperator, loginAdminOperator, logoutAdminOperator, getAllAdminOperator };
+const updateUserAvatar = asyncHandler(async(req, res) => {
+    const avatarLocalPath = req.file?.path
+
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is missing")
+    }
+
+    const currentUser = await AdminOperator.findById(req.user?._id);
+
+    if(currentUser?.avatar){
+        const publicId = getPublicIdFromUrl(currentUser.avatar);
+        await removeFromCloudinary(publicId);
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if (!avatar.url) {
+        throw new ApiError(400, "Error while uploading on avatar")
+        
+    }
+
+    const user = await AdminOperator.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set:{
+                avatar: avatar.url
+            }
+        },
+        {new: true}
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "Avatar image updated successfully")
+    )
+})
+export { registerAdminOperator, loginAdminOperator, logoutAdminOperator, getAllAdminOperator, updateUserAvatar};

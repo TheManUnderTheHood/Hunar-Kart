@@ -11,7 +11,13 @@ const adminOperatorSchema = new mongoose.Schema({
     lowercase: true,
     trim: true 
   },
-  contactNumber: { type: String, required: true },
+  contactNumber: { type: String,
+     required: true 
+    },
+  avatar: {
+        type: String, //url
+        // required: true,
+    },
   role: { 
     type: String, 
     enum: ['Admin', 'PortalOperator'], 

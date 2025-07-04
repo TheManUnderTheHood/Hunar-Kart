@@ -16,8 +16,6 @@ export const verifyJWT = asyncHandler(async(req, _, next) => {
         const user = await AdminOperator.findById(decodedToken?._id).select("-password -refreshToken");
 
         if (!user) {
-            // In a real-world scenario, you might want to handle this more gracefully
-            // e.g., if the user was deleted but their token is still valid.
             throw new ApiError(401, "Invalid Access Token");
         }
 
