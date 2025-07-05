@@ -77,5 +77,4 @@ adminOperatorSchema.methods.generateRefreshToken = function(){
     );
 };
 
-
 export const AdminOperator = mongoose.model('AdminOperator', adminOperatorSchema);

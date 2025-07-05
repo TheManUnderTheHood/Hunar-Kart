@@ -35,7 +35,6 @@ const getAllArtisans = asyncHandler(async (req, res) => {
     );
 });
 
-// Example of how you would get a single artisan and populate related data
 const getArtisanById = asyncHandler(async (req, res) => {
     const { artisanId } = req.params;
 
@@ -43,21 +42,62 @@ const getArtisanById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid Artisan ID format");
     }
 
-    // This is where the 'ref' in your models becomes powerful.
-    // We can find an artisan and also fetch all HandcraftedItems associated with them.
     const artisan = await Artisan.findById(artisanId);
 
     if (!artisan) {
         throw new ApiError(404, "Artisan not found");
     }
 
-    // You can also populate related data from other collections like this:
-    // const items = await HandcraftedItem.find({ artisanID: artisan._id });
-
     return res.status(200).json(
         new ApiResponse(200, artisan, "Artisan fetched successfully")
     );
 });
 
+const updateArtisan = asyncHandler(async (req, res) => {
+    const { name, address, contactNumber, agreementStatus } = req.body;
+    const { artisanId } = req.params;
 
-export { createArtisan, getAllArtisans, getArtisanById };
+    if (!mongoose.Types.ObjectId.isValid(artisanId)) {
+        throw new ApiError(400, "Invalid Artisan ID");
+    }
+
+    const artisan = await Artisan.findByIdAndUpdate(
+        artisanId,
+        {
+            $set: {
+                ...(name && { name }),
+                ...(address && { address }),
+                ...(contactNumber && { contactNumber }),
+                ...(agreementStatus && { agreementStatus })
+            }
+        },
+        { new: true } 
+    );
+
+    if (!artisan) {
+        throw new ApiError(404, "Artisan not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, artisan, "Artisan updated successfully")
+    );
+});
+
+const deleteArtisan = asyncHandler(async (req, res) => {
+    const { artisanId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(artisanId)) {
+        throw new ApiError(400, "Invalid Artisan ID");
+    }
+
+    const artisan = await Artisan.findByIdAndDelete(artisanId);
+
+    if (!artisan) {
+        throw new ApiError(404, "Artisan not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Artisan deleted successfully")
+    );
+});
+
+export { createArtisan, getAllArtisans, getArtisanById, updateArtisan, deleteArtisan };

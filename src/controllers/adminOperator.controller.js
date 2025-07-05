@@ -135,4 +135,107 @@ function getPublicIdFromUrl(url) {
     return publicId;
 }
 
-export { registerAdminOperator, loginAdminOperator, logoutAdminOperator, getAllAdminOperator};
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
+    if (!incomingRefreshToken) {
+        throw new ApiError(401, "Unauthorized request: No refresh token provided");
+    }
+
+    try {
+        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = await AdminOperator.findById(decodedToken?._id);
+
+        if (!user) {
+            throw new ApiError(401, "Invalid refresh token");
+        }
+
+        if (incomingRefreshToken !== user?.refreshToken) {
+            throw new ApiError(401, "Refresh token is expired or used");
+        }
+
+        const { accessToken, newRefreshToken } = await generateAccessAndRefreshTokens(user._id);
+
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production'
+        };
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", newRefreshToken, options)
+            .json(new ApiResponse(200, { accessToken, refreshToken: newRefreshToken }, "Access token refreshed"));
+
+    } catch (error) {
+        throw new ApiError(401, error?.message || "Invalid refresh token");
+    }
+});
+
+const getCurrentUser = asyncHandler(async(req, res) => {
+    return res.status(200).json(new ApiResponse(200, req.user, "Current user fetched successfully"));
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { name, contactNumber } = req.body;
+    
+    if (!name && !contactNumber) {
+        throw new ApiError(400, "At least one field (name or contactNumber) must be provided for update.");
+    }
+    
+    const user = await AdminOperator.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                ...(name && { name }), 
+                ...(contactNumber && { contactNumber })
+            }
+        },
+        { new: true }
+    ).select("-password -refreshToken");
+
+    return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
+});
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.file?.path;
+
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is missing");
+    }
+
+    const newAvatar = await uploadOnCloudinary(avatarLocalPath);
+
+    if (!newAvatar?.url) {
+        throw new ApiError(500, "Error while uploading avatar to Cloudinary");
+    }
+
+    const oldAvatarUrl = req.user.avatar;
+    if (oldAvatarUrl) {
+        const publicId = getPublicIdFromUrl(oldAvatarUrl);
+        await removeFromCloudinary(publicId);
+    }
+    
+    const user = await AdminOperator.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                avatar: newAvatar.url
+            }
+        },
+        { new: true }
+    ).select("-password -refreshToken");
+
+    return res.status(200).json(new ApiResponse(200, user, "Avatar updated successfully"));
+});
+
+export { 
+    registerAdminOperator, 
+    loginAdminOperator, 
+    logoutAdminOperator, 
+    getAllAdminOperator,
+    refreshAccessToken,
+    getCurrentUser,
+    updateAccountDetails,
+    updateUserAvatar 
+};

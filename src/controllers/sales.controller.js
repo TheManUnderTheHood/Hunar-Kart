@@ -36,7 +36,6 @@ const createSale = asyncHandler(async (req, res) => {
 });
 
 const getAllSale = asyncHandler(async (req, res) => {
-    // Here we use populate twice to get data from two different related collections.
     const sales = await Sale.find({})
         .populate("itemID", "name category price")
         .populate("artisanID", "name");
@@ -46,4 +45,46 @@ const getAllSale = asyncHandler(async (req, res) => {
     );
 });
 
-export { createSale, getAllSale };
+const getSaleById = asyncHandler(async (req, res) => {
+    const { saleId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(saleId)) {
+        throw new ApiError(400, "Invalid Sale ID format");
+    }
+
+    const sale = await Sale.findById(saleId)
+        .populate("itemID", "name category price")
+        .populate("artisanID", "name");
+
+    if (!sale) {
+        throw new ApiError(404, "Sale record not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, sale, "Sale record fetched successfully")
+    );
+});
+
+
+const deleteSale = asyncHandler(async (req, res) => {
+    const { saleId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(saleId)) {
+        throw new ApiError(400, "Invalid Sale ID format");
+    }
+
+    const sale = await Sale.findByIdAndDelete(saleId);
+
+    if (!sale) {
+        throw new ApiError(404, "Sale record not found");
+    }
+   
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Sale record deleted successfully")
+    );
+});
+
+export { 
+    createSale, 
+    getAllSale,
+    getSaleById,
+    deleteSale
+};

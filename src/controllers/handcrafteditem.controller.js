@@ -34,7 +34,6 @@ const createHandcraftedItem = asyncHandler(async (req, res) => {
 });
 
 const getAllHandcraftedItem = asyncHandler(async (req, res) => {
-    // Populate with artisan's name to show who created the item
     const items = await HandcraftedItem.find({}).populate("artisanID", "name");
 
     return res.status(200).json(
@@ -42,4 +41,80 @@ const getAllHandcraftedItem = asyncHandler(async (req, res) => {
     );
 });
 
-export { createHandcraftedItem, getAllHandcraftedItem };
+const getHandcraftedItemById = asyncHandler(async (req, res) => {
+    const { itemId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+        throw new ApiError(400, "Invalid Handcrafted Item ID format");
+    }
+
+    const item = await HandcraftedItem.findById(itemId).populate("artisanID", "name");
+
+    if (!item) {
+        throw new ApiError(404, "Handcrafted item not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, item, "Handcrafted item fetched successfully")
+    );
+});
+
+const updateHandcraftedItem = asyncHandler(async (req, res) => {
+    const { itemId } = req.params;
+    const { name, description, category, price, quantity, status } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+        throw new ApiError(400, "Invalid Handcrafted Item ID format");
+    }
+    
+    if (!name && !description && !category && !price && !quantity && !status) {
+        throw new ApiError(400, "At least one field must be provided for update.");
+    }
+
+    const item = await HandcraftedItem.findByIdAndUpdate(
+        itemId,
+        {
+            $set: {
+                ...(name && { name }),
+                ...(description && { description }),
+                ...(category && { category }),
+                ...(price && { price }),
+                ...(quantity && { quantity }),
+                ...(status && { status })
+            }
+        },
+        { new: true }
+    );
+
+    if (!item) {
+        throw new ApiError(404, "Handcrafted item not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, item, "Handcrafted item updated successfully")
+    );
+});
+
+const deleteHandcraftedItem = asyncHandler(async (req, res) => {
+    const { itemId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+        throw new ApiError(400, "Invalid Handcrafted Item ID format");
+    }
+
+    const item = await HandcraftedItem.findByIdAndDelete(itemId);
+
+    if (!item) {
+        throw new ApiError(404, "Handcrafted item not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Handcrafted item deleted successfully")
+    );
+});
+
+export { 
+    createHandcraftedItem, 
+    getAllHandcraftedItem,
+    getHandcraftedItemById,
+    updateHandcraftedItem,
+    deleteHandcraftedItem 
+};

@@ -32,8 +32,6 @@ const createAgreementDocument = asyncHandler(async (req, res) => {
 });
 
 const getAllAgreementDocument = asyncHandler(async (req, res) => {
-    // We use .populate() to fetch the details of the Artisan referenced by artisanID
-    // This demonstrates the power of your database interlinking.
     const documents = await AgreementDocument.find({}).populate("artisanID", "name contactNumber");
 
     return res.status(200).json(
@@ -41,4 +39,77 @@ const getAllAgreementDocument = asyncHandler(async (req, res) => {
     );
 });
 
-export { createAgreementDocument, getAllAgreementDocument };
+const getAgreementDocumentById = asyncHandler(async (req, res) => {
+    const { documentId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(documentId)) {
+        throw new ApiError(400, "Invalid Agreement Document ID format");
+    }
+
+    const document = await AgreementDocument.findById(documentId).populate("artisanID", "name");
+
+    if (!document) {
+        throw new ApiError(404, "Agreement document not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, document, "Agreement document fetched successfully")
+    );
+});
+
+const updateAgreementDocument = asyncHandler(async (req, res) => {
+    const { documentId } = req.params;
+    const { filePath, dateSigned, validUntil } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(documentId)) {
+        throw new ApiError(400, "Invalid Agreement Document ID format");
+    }
+    
+    if (!filePath && !dateSigned && !validUntil) {
+        throw new ApiError(400, "At least one field to update must be provided.");
+    }
+
+    const document = await AgreementDocument.findByIdAndUpdate(
+        documentId,
+        {
+            $set: {
+                ...(filePath && { filePath }),
+                ...(dateSigned && { dateSigned }),
+                ...(validUntil && { validUntil })
+            }
+        },
+        { new: true }
+    );
+
+    if (!document) {
+        throw new ApiError(404, "Agreement document not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, document, "Agreement document updated successfully")
+    );
+});
+
+const deleteAgreementDocument = asyncHandler(async (req, res) => {
+    const { documentId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(documentId)) {
+        throw new ApiError(400, "Invalid Agreement Document ID format");
+    }
+
+    const document = await AgreementDocument.findByIdAndDelete(documentId);
+
+    if (!document) {
+        throw new ApiError(404, "Agreement document not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Agreement document deleted successfully")
+    );
+});
+
+export { 
+    createAgreementDocument, 
+    getAllAgreementDocument,
+    getAgreementDocumentById,
+    updateAgreementDocument,
+    deleteAgreementDocument
+};
