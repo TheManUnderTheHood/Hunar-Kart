@@ -22,7 +22,7 @@ router.route("/refresh-token").post(refreshAccessToken);
 router.use(verifyJWT); 
 
 router.route("/register").post(
-    authorizeRole("Admin"), // Only Admins can register new users
+    //authorizeRole("Admin"), // Only Admins can register new users
     upload.fields([{ name: "avatar", maxCount: 1 }]), 
     registerAdminOperator
 );
