@@ -24,10 +24,12 @@ const adminOperatorSchema = new mongoose.Schema({
      match: [/^\d{10}$/, 'Please fill a valid 10-digit contact number']
   },
   avatar: {
-        type: String, //url
-        trim: true,
-        match: [/(https?:\/\/[^\s]+)/, 'Please provide a valid URL for the avatar']
-    },
+      type: String, // url
+      trim: true,
+  },
+  avatarPublicId: { 
+      type: String,
+  },
   role: { 
     type: String, 
     enum: {

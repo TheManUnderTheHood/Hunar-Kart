@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
 import { AdminOperator } from "../models/AdminOperator.model.js";
 import {uploadOnCloudinary, removeFromCloudinary} from "../utils/cloudinary.js";
 
@@ -21,9 +22,6 @@ const generateAccessAndRefreshTokens = async(userId) => {
 }
 
 const registerAdminOperator = asyncHandler(async (req, res) => {
-    if (!req.body) {
-        return res.status(400).json({ message: "Request body is missing" });
-    }
     const { name, email, contactNumber, password, role } = req.body;
 
     if ([name, email, contactNumber, password].some((field) => field?.trim() === "")) {
@@ -44,6 +42,7 @@ const registerAdminOperator = asyncHandler(async (req, res) => {
     const user = await AdminOperator.create({
         name,
         avatar: avatar?.url || "",
+        avatarPublicId: avatar?.public_id || "",
         email,
         contactNumber,
         password,
@@ -128,13 +127,6 @@ const getAllAdminOperator = asyncHandler(async (req, res) => {
     );
 });
 
-function getPublicIdFromUrl(url) {
-    const parts = url.split('/');
-    const fileWithExtension = parts[parts.length - 1];
-    const publicId = fileWithExtension.substring(0, fileWithExtension.lastIndexOf('.'));
-    return publicId;
-}
-
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
@@ -210,17 +202,17 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Error while uploading avatar to Cloudinary");
     }
 
-    const oldAvatarUrl = req.user.avatar;
-    if (oldAvatarUrl) {
-        const publicId = getPublicIdFromUrl(oldAvatarUrl);
-        await removeFromCloudinary(publicId);
+    const oldAvatarPublicId = req.user.avatarPublicId; 
+    if (oldAvatarPublicId) {
+        await removeFromCloudinary(oldAvatarPublicId); 
     }
     
     const user = await AdminOperator.findByIdAndUpdate(
         req.user._id,
         {
             $set: {
-                avatar: newAvatar.url
+                avatar: newAvatar.url,
+                avatarPublicId: newAvatar.public_id 
             }
         },
         { new: true }

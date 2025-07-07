@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser"; // <-- ADD THIS
 import { verifyJWT } from "./middlewares/auth.middleware.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
 
+//Routes Import
 import artisanRouter from "./routes/artisan.routes.js";
 import adminoperatorRouter from "./routes/adminoperator.routes.js";
 import agreementdocumentRouter from "./routes/agreementdocument.routes.js";
@@ -53,5 +55,7 @@ app.use("/api/v1/platformlisting", platformlistingRouter);
 app.get("/health", (req, res) => {
     res.status(200).json({ status: "OK", message: "Server is healthy" });
 });
+
+app.use(errorHandler);//global error handler
 
 export { app };
