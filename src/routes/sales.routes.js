@@ -5,7 +5,7 @@ import {
     getSaleById,
     deleteSale
 } from "../controllers/sales.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyJWT, authorizeRole } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -17,6 +17,6 @@ router.route("/")
 
 router.route("/:saleId")
     .get(getSaleById)
-    .delete(deleteSale); 
+    .delete(authorizeRole("Admin"), deleteSale); // Only Admins can delete sales
 
 export default router;

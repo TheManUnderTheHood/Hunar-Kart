@@ -25,3 +25,17 @@ export const verifyJWT = asyncHandler(async(req, _, next) => {
         throw new ApiError(401, error?.message || "Invalid access token");
     }
 });
+
+export const authorizeRole = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user || !req.user.role) {
+            return next(new ApiError(401, "Authentication error. User role not found."));
+        }
+
+        if (!roles.includes(req.user.role)) {
+            return next(new ApiError(403, `Role '${req.user.role}' is not authorized to access this resource.`));
+        }
+        
+        next();
+    }
+}
