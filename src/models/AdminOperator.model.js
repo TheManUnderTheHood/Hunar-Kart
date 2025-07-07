@@ -5,30 +5,41 @@ import bcrypt from 'bcryptjs';
 const adminOperatorSchema = new mongoose.Schema({
   name: { 
     type: String, 
-    required: true 
+    required: [true, 'Name is required'],
+    trim: true,
+    minlength: [2, 'Name must be at least 2 characters long']
   },
   email: { 
     type: String,
-    required: true,
+    required: [true, 'Email is required'],
     unique: true,
     lowercase: true,
-    trim: true 
+    trim: true,
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
   },
-  contactNumber: { type: String,
-     required: true 
-    },
+  contactNumber: { 
+     type: String,
+     required: [true, 'Contact number is required'],
+     trim: true,
+     match: [/^\d{10}$/, 'Please fill a valid 10-digit contact number']
+  },
   avatar: {
         type: String, //url
-        // required: true,
+        trim: true,
+        match: [/(https?:\/\/[^\s]+)/, 'Please provide a valid URL for the avatar']
     },
   role: { 
     type: String, 
-    enum: ['Admin', 'PortalOperator'], 
+    enum: {
+      values: ['Admin', 'PortalOperator'],
+      message: '{VALUE} is not a supported role'
+    },
     default: 'PortalOperator' 
   },
   password: {
     type: String,
-    required: [true, 'Password is required']
+    required: [true, 'Password is required'],
+    minlength: [6, 'Password must be at least 6 characters long']
   },
   refreshToken: {
     type: String
