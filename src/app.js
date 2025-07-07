@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { verifyJWT } from "./middlewares/auth.middleware.js";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { errorHandler } from "./middlewares/error.middleware.js";
 
 //Routes Import
