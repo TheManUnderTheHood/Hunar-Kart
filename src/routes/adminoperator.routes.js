@@ -19,13 +19,13 @@ router.route("/login").post(loginAdminOperator);
 router.route("/refresh-token").post(refreshAccessToken);
 
 // --- Secured Routes ---
-router.use(verifyJWT); 
 
 router.route("/register").post(
     //authorizeRole("Admin"), // Only Admins can register new users
     upload.fields([{ name: "avatar", maxCount: 1 }]), 
     registerAdminOperator
 );
+router.use(verifyJWT); 
 
 router.route("/").get(authorizeRole("Admin"), getAllAdminOperator);
 
