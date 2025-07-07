@@ -109,7 +109,7 @@ const deleteArtisan = asyncHandler(async (req, res) => {
 
             const publicIds = agreements.map(doc => doc.filePathPublicId).filter(id => id);
             if (publicIds.length > 0) {
-                publicIds.forEach(id => removeFromCloudinary(id)); 
+                await Promise.all(publicIds.forEach(id => removeFromCloudinary(id))); 
             }
 
             await AgreementDocument.deleteMany({ artisanID: artisanId }).session(session);

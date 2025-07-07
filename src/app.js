@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser"; // <-- ADD THIS
+import cookieParser from "cookie-parser";
 import { verifyJWT } from "./middlewares/auth.middleware.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 
@@ -15,15 +15,27 @@ import platformlistingRouter from "./routes/platformlisting.routes.js";
 const app = express();
 
 // --- Middleware ---
+app.use(helmet());
+
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true
 }));
 
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, 
+	max: 100, 
+	standardHeaders: true,
+	legacyHeaders: false,
+    message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+
+app.use(limiter); 
+
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"))
-app.use(cookieParser()); // <-- ADD THIS
+app.use(cookieParser()); 
 
 // --- Route Declaration ---
 app.get("/", (req, res) => {
