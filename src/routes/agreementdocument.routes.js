@@ -3,22 +3,21 @@ import {
     createAgreementDocument, 
     getAllAgreementDocument,
     getAgreementDocumentById,
-    updateAgreementDocument,
     deleteAgreementDocument
 } from "../controllers/agreementdocument.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
 
 router.use(verifyJWT);
 
 router.route("/")
-    .post(createAgreementDocument)
+    .post(upload.single("agreementFile"), createAgreementDocument) 
     .get(getAllAgreementDocument);
 
 router.route("/:documentId")
     .get(getAgreementDocumentById)
-    .patch(updateAgreementDocument)
     .delete(deleteAgreementDocument);
 
 export default router;

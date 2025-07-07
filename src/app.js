@@ -37,14 +37,7 @@ app.get("/", (req, res) => {
         `);
 });
 
-// Public Routes (like login/register)
 app.use("/api/v1/adminoperator", adminoperatorRouter);
-
-// Protected Routes (everything else)
-
-app.use(verifyJWT); 
-
-// Now, all routes below this line will require authentication
 app.use("/api/v1/artisans", artisanRouter);
 app.use("/api/v1/agreementdocument", agreementdocumentRouter);
 app.use("/api/v1/sales", salesRouter);

@@ -11,6 +11,9 @@ const agreementDocumentSchema = new mongoose.Schema({
     required: [true, 'File path is required'],
     trim: true
   }, 
+  filePathPublicId: {
+    type: String
+  },
   dateSigned: { 
     type: Date, 
     required: [true, 'Date signed is required'] 

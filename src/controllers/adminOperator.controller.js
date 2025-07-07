@@ -29,15 +29,13 @@ const registerAdminOperator = asyncHandler(async (req, res) => {
     }
 
     const existedUser = await AdminOperator.findOne({ email });
-
-    const avatarLocalPath = req.files?.avatar?.[0]?.path;
-
-    // Upload the avatar file from its temporary local path to Cloudinary.
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
-
     if (existedUser) {
         throw new ApiError(409, "User with this email already exists");
     }
+
+    // Upload the avatar file from its temporary local path to Cloudinary.
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
 
     const user = await AdminOperator.create({
         name,
