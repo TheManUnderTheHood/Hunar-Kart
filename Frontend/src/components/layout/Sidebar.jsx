@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, ShoppingBag, DollarSign, List, FileText, Gem } from 'lucide-react';
+import useAuth from '../../hooks/useAuth'; // 1. Import useAuth
+import { LayoutDashboard, Users, ShoppingBag, DollarSign, List, FileText, Gem, UserCog } from 'lucide-react';
 
 const navItems = [
     { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -9,6 +10,12 @@ const navItems = [
     { to: "/sales", icon: DollarSign, label: "Sales" },
     { to: "/agreements", icon: FileText, label: "Agreements" },
 ];
+
+const adminNavItems = [
+    // 2. Define the new admin-only nav item
+    { to: "/operators", icon: UserCog, label: "Operators" },
+];
+
 
 const SidebarNavLink = ({ to, icon: Icon, label }) => {
     return (
@@ -26,6 +33,8 @@ const SidebarNavLink = ({ to, icon: Icon, label }) => {
 }
 
 const Sidebar = () => {
+    const { user } = useAuth(); // 3. Get the authenticated user
+
     return (
         <aside className="hidden w-64 flex-col border-r border-slate-800 bg-slate-900 p-4 md:flex">
             <div className="flex h-16 items-center gap-3 border-b border-slate-800 px-2">
@@ -34,6 +43,15 @@ const Sidebar = () => {
             </div>
             <nav className="mt-6 flex flex-1 flex-col gap-2">
                 {navItems.map(item => <SidebarNavLink key={item.to} {...item} />)}
+                
+                {/* 4. Conditionally render the admin navigation items */}
+                {user?.role === 'Admin' && (
+                    <>
+                      <div className="my-2 border-t border-slate-800"></div>
+                      <h3 className="px-3 text-xs font-semibold uppercase text-slate-500">Admin</h3>
+                      {adminNavItems.map(item => <SidebarNavLink key={item.to} {...item} />)}
+                    </>
+                )}
             </nav>
         </aside>
     );
