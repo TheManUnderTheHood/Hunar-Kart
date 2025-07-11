@@ -1,63 +1,19 @@
-import { useState } from 'react';
-import useAuth from '../hooks/useAuth';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import { Gem } from 'lucide-react';
-
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await login(email, password);
-    } catch (err) {
-      setError(err.message || 'Failed to log in. Please check your credentials.');
-    } finally {
-        setLoading(false);
-    }
-  };
-
+const Input = ({ id, type = "text", placeholder, className = '', ...props }) => {
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-        <div 
-          className="relative w-full max-w-md space-y-8 rounded-xl bg-slate-800/80 p-8 shadow-xl backdrop-blur-sm border border-slate-700"
-        >
-          <div>
-            <Gem className="mx-auto h-12 w-auto text-primary"/>
-            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-white">
-              Sign in to HunarKart Admin
-            </h2>
-          </div>
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-4 rounded-md">
-              <div>
-                <label htmlFor="email-address" className="sr-only">Email address</label>
-                <Input id="email-address" name="email" type="email" autoComplete="email" required placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
-              </div>
-              <div>
-                <label htmlFor="password" className="sr-only">Password</label>
-                <Input id="password" name="password" type="password" autoComplete="current-password" required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-              </div>
-            </div>
-
-            {error && <p className="text-center text-sm text-red-500">{error}</p>}
-
-            <div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Signing in...' : 'Sign in'}
-              </Button>
-            </div>
-          </form>
-        </div>
-    </div>
+    <input
+      id={id}
+      type={type}
+      placeholder={placeholder}
+      className={`
+        block w-full rounded-md border-0 bg-slate-900/50 py-2.5 px-4 text-slate-100 
+        shadow-sm ring-1 ring-inset ring-slate-700 placeholder:text-slate-500 
+        transition-all duration-300
+        focus:bg-slate-900 focus:ring-2 focus:ring-inset focus:ring-primary-focus 
+        ${className}
+      `}
+      {...props}
+    />
   );
 };
 
-export default Login;
+export default Input;
