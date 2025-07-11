@@ -1,14 +1,21 @@
+import { useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import Button from "../ui/Button";
 import { LogOut, User } from "lucide-react";
 
 const Header = () => {
     const { user, logout } = useAuth();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        await logout();
+        // No need to set isLoggingOut back to false, user is redirected.
+    };
 
     return (
-        <header className="flex h-16 items-center justify-between border-b border-slate-800 bg-slate-900 px-4 sm:px-6">
+        <header className="flex h-16 items-center justify-between border-b border-slate-800/80 bg-slate-900/70 px-4 backdrop-blur-lg sm:px-6">
             <div>
-                {/* Could add breadcrumbs or search here in the future */}
                 <h1 className="text-xl font-semibold text-white">Welcome, {user?.name || "Operator"}!</h1>
             </div>
             <div className="flex items-center gap-4">
@@ -22,9 +29,14 @@ const Header = () => {
                     )}
                     <span className="hidden sm:inline text-slate-300">{user?.email}</span>
                 </div>
-                <Button variant="ghost" onClick={logout} className="gap-2">
-                   <LogOut className="h-4 w-4"/> 
-                   Logout
+                <Button 
+                    variant="ghost" 
+                    onClick={handleLogout}
+                    loading={isLoggingOut} 
+                    className="gap-2"
+                >
+                   {!isLoggingOut && <LogOut className="h-4 w-4"/>}
+                   <span>Logout</span>
                 </Button>
             </div>
         </header>
