@@ -1,0 +1,40 @@
+Hunar-Kart/
+├── .env
+├── .gitignore
+├── package.json
+└── src/
+    ├── app.js                  // Central Express app configuration
+    ├── constants.js
+    ├── index.js                // Main entry point (connects DB, starts server)
+    ├── db/
+    │   └── index.js            // Database connection logic
+    ├── models/
+    │   ├── AdminOperator.model.js
+    │   ├── AgreementDocument.model.js
+    │   ├── Artisan.model.js
+    │   ├── HandcraftedItem.model.js
+    │   ├── PlatformListing.model.js
+    │   └── Sales.model.js
+    ├── controllers/
+    │   ├── artisan.controller.js
+    │   ├── handcrafteditem.controller.js
+    │   ├── adminoperator.controller.js
+    │   ├── agreementdocument.controller.js
+    │   ├── platformlisting.controller.js
+    │   └── sales.controller.js
+    ├── routes/
+    │   ├── artisan.routes.js
+    │   ├── handcraftedItem.routes.js
+    │   ├── adminoperator.routes.js
+    │   ├── agreementdocument.routes.js
+    │   ├── platformlisting.routes.js
+    │   └── sales.routes.js
+    ├── utils/
+    │   ├── AsyncHandler.js
+    │   ├── ApiResponse.js
+    │   ├── ApiError.js
+    │   └── cloudinary.js
+    └── middlewares/
+	├── multer.middleware.js
+	├── error.middleware.js
+        └── auth.middleware.js 			 
