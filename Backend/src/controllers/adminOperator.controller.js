@@ -78,9 +78,10 @@ const loginAdminOperator = asyncHandler(async (req, res) => {
 
     const loggedInUser = await AdminOperator.findById(user._id).select("-password -refreshToken");
 
-    const options = {
+const options = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' // use secure cookies in production
+        secure: process.env.NODE_ENV === 'production', // Will be true on Render
+        sameSite: 'None', // Essential for cross-site cookies
     };
 
     return res
@@ -107,7 +108,8 @@ const logoutAdminOperator = asyncHandler(async (req, res) => {
     
     const options = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production'
+        secure: process.env.NODE_ENV === 'production', // Will be true on Render
+        sameSite: 'None', // Essential for cross-site cookies
     };
 
     return res
@@ -148,7 +150,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
         const options = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production'
+            secure: process.env.NODE_ENV === 'production', // Will be true on Render
+            sameSite: 'None', // Essential for cross-site cookies
         };
 
         return res
