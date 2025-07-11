@@ -16,13 +16,17 @@ import platformlistingRouter from "./routes/platformlisting.routes.js";
 const app = express();
 
 // --- Middleware ---
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+};
+app.use(cors(corsOptions));
+
 app.set('trust proxy', 1);
 app.use(helmet());
-
-app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true
-}));
 
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, 
