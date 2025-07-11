@@ -1,0 +1,20 @@
+{
+  "name": "hunar-kart",
+  "version": "1.0.0",
+  "description": "Root controller for HunarKart frontend and backend.",
+  "main": "index.js",
+  "scripts": {
+    "install:backend": "cd Backend && npm install",
+    "install:frontend": "cd Frontend && npm install",
+    "install-all": "npm run install:backend && npm run install:frontend",
+    "dev:backend": "cd Backend && npm run dev",
+    "dev:frontend": "cd Frontend && npm run dev",
+    "dev": "concurrently \"npm:dev:*\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
