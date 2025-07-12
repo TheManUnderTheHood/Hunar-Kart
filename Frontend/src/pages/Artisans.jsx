@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
 import Spinner from '../components/ui/Spinner';
 import Table from '../components/ui/Table';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import Input from '../components/ui/Input';
-import { PlusCircle, Edit, Trash2 } from 'lucide-react';
-const FormInput = ({ label, ...props }) => (<div><label className="block text-sm font-medium text-slate-300 mb-1">{label}</label><Input {...props} /></div>);
+import { PlusCircle, Edit, Trash2, Eye } from 'lucide-react';
+
+const FormInput = ({ label, ...props }) => (
+    <div>
+        <label className="block text-sm font-medium text-slate-300 mb-1">{label}</label>
+        <Input {...props} />
+    </div>
+);
 
 const Artisans = () => {
     const [artisans, setArtisans] = useState([]);
@@ -39,12 +46,14 @@ const Artisans = () => {
         setFormData(artisan ? { ...artisan } : { name: '', address: '', contactNumber: '', aadhaarCardNumber: '' });
         setIsModalOpen(true);
     };
+
     const handleCloseModal = () => setIsModalOpen(false);
     const handleInputChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setError('');
         try {
             if (currentArtisan) {
                 await apiClient.patch(`/artisans/${currentArtisan._id}`, formData);
@@ -78,9 +87,18 @@ const Artisans = () => {
             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 max-w-sm truncate">{artisan.address}</td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{artisan.agreementStatus}</td>
             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <div className='flex gap-2'>
-                    <Button variant="ghost" onClick={() => handleOpenModal(artisan)} className="p-2 h-auto"><Edit className="h-4 w-4"/></Button>
-                    <Button variant="ghost" onClick={() => handleDelete(artisan._id)} className="p-2 h-auto text-red-500 hover:bg-red-500/10 hover:text-red-400"><Trash2 className="h-4 w-4"/></Button>
+                <div className='flex gap-1'>
+                    <Link to={`/artisans/${artisan._id}`}>
+                        <Button variant="ghost" className="p-2 h-auto" aria-label="View Details">
+                            <Eye className="h-4 w-4"/>
+                        </Button>
+                    </Link>
+                    <Button variant="ghost" onClick={() => handleOpenModal(artisan)} className="p-2 h-auto" aria-label="Edit Artisan">
+                        <Edit className="h-4 w-4"/>
+                    </Button>
+                    <Button variant="ghost" onClick={() => handleDelete(artisan._id)} className="p-2 h-auto text-red-500 hover:bg-red-500/10 hover:text-red-400" aria-label="Delete Artisan">
+                        <Trash2 className="h-4 w-4"/>
+                    </Button>
                 </div>
             </td>
         </tr>
@@ -92,23 +110,33 @@ const Artisans = () => {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-white">Manage Artisans</h1>
-                <Button onClick={() => handleOpenModal()} className="gap-2"><PlusCircle className="h-5 w-5"/> Add Artisan</Button>
+                <Button onClick={() => handleOpenModal()} className="gap-2">
+                    <PlusCircle className="h-5 w-5"/> Add Artisan
+                </Button>
             </div>
-            {error && <p className="text-red-500 bg-red-500/10 p-3 rounded-md mb-4">{error}</p>}
+
+            {error && !isModalOpen && <p className="text-red-500 bg-red-500/10 p-3 rounded-md mb-4">{error}</p>}
+            
             <Table headers={["Name", "Contact", "Address", "Agreement Status", "Actions"]} data={artisans} renderRow={renderArtisanRow} />
+
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={currentArtisan ? 'Edit Artisan' : 'Add New Artisan'}>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    {error && isModalOpen && <p className="text-red-500 bg-red-500/10 p-3 rounded-md -mt-2 mb-2">{error}</p>}
                     <FormInput name="name" label="Full Name" value={formData.name} onChange={handleInputChange} required />
                     <FormInput name="address" label="Address" value={formData.address} onChange={handleInputChange} required />
                     <FormInput name="contactNumber" label="Contact Number" value={formData.contactNumber} onChange={handleInputChange} required />
                     <FormInput name="aadhaarCardNumber" label="Aadhaar Card Number (Optional)" value={formData.aadhaarCardNumber || ''} onChange={handleInputChange} />
+                    
                     <div className="flex justify-end gap-2 pt-4">
                         <Button type="button" variant="secondary" onClick={handleCloseModal}>Cancel</Button>
-                        <Button type="submit" loading={isSubmitting}>{currentArtisan ? 'Save Changes' : 'Create Artisan'}</Button>
+                        <Button type="submit" loading={isSubmitting}>
+                           {currentArtisan ? 'Save Changes' : 'Create Artisan'}
+                        </Button>
                     </div>
                 </form>
             </Modal>
         </div>
     );
 };
+
 export default Artisans;

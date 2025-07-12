@@ -7,11 +7,14 @@ import Header from './components/layout/Header';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Artisans from './pages/Artisans';
+import ArtisanDetail from './pages/ArtisanDetail';
 import HandcraftedItems from './pages/HandcraftedItems';
+import ItemDetail from './pages/ItemDetail';
 import PlatformListings from './pages/PlatformListings';
 import Sales from './pages/Sales';
 import AgreementDocuments from './pages/AgreementDocuments';
 import Operators from './pages/Operators';
+import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 
 const ProtectedRoute = () => {
@@ -48,11 +51,13 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/artisans" element={<Artisans />} />
+        <Route path="/artisans/:artisanId" element={<ArtisanDetail />} />
         <Route path="/items" element={<HandcraftedItems />} />
+        <Route path="/items/:itemId" element={<ItemDetail />} />
         <Route path="/listings" element={<PlatformListings />} />
         <Route path="/sales" element={<Sales />} />
         <Route path="/agreements" element={<AgreementDocuments />} />
-
+        <Route path="/profile" element={<Profile />} />
         <Route element={<AdminRoute />}>
             <Route path="/operators" element={<Operators />} />
         </Route>
@@ -62,5 +67,4 @@ function App() {
     </Routes>
   );
 }
-
 export default App;
