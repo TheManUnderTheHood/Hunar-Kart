@@ -39,23 +39,6 @@ const getAllPlatformListing = asyncHandler(async (req, res) => {
     );
 });
 
-const getPlatformListingById = asyncHandler(async (req, res) => {
-    const { listingId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(listingId)) {
-        throw new ApiError(400, "Invalid Platform Listing ID format");
-    }
-
-    const listing = await PlatformListing.findById(listingId).populate("itemID", "name price");
-
-    if (!listing) {
-        throw new ApiError(404, "Platform listing not found");
-    }
-
-    return res.status(200).json(
-        new ApiResponse(200, listing, "Platform listing fetched successfully")
-    );
-});
-
 const updatePlatformListing = asyncHandler(async (req, res) => {
     const { listingId } = req.params;
     const { platformName, listingURL, status } = req.body;
@@ -109,7 +92,6 @@ const deletePlatformListing = asyncHandler(async (req, res) => {
 export { 
     createPlatformListing, 
     getAllPlatformListing,
-    getPlatformListingById,
     updatePlatformListing,
     deletePlatformListing 
 };

@@ -51,23 +51,6 @@ const getAllAgreementDocument = asyncHandler(async (req, res) => {
     );
 });
 
-const getAgreementDocumentById = asyncHandler(async (req, res) => {
-    const { documentId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(documentId)) {
-        throw new ApiError(400, "Invalid Agreement Document ID format");
-    }
-
-    const document = await AgreementDocument.findById(documentId).populate("artisanID", "name");
-
-    if (!document) {
-        throw new ApiError(404, "Agreement document not found");
-    }
-
-    return res.status(200).json(
-        new ApiResponse(200, document, "Agreement document fetched successfully")
-    );
-});
-
 const deleteAgreementDocument = asyncHandler(async (req, res) => {
     const { documentId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(documentId)) {
@@ -92,6 +75,5 @@ const deleteAgreementDocument = asyncHandler(async (req, res) => {
 export { 
     createAgreementDocument, 
     getAllAgreementDocument,
-    getAgreementDocumentById,
     deleteAgreementDocument,
 };

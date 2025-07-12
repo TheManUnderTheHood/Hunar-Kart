@@ -2,7 +2,6 @@ import { Router } from "express";
 import { 
     createAgreementDocument, 
     getAllAgreementDocument,
-    getAgreementDocumentById,
     deleteAgreementDocument
 } from "../controllers/agreementdocument.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -17,7 +16,6 @@ router.route("/")
     .get(getAllAgreementDocument);
 
 router.route("/:documentId")
-    .get(getAgreementDocumentById)
     .delete(deleteAgreementDocument);
 
 export default router;

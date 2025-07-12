@@ -2,7 +2,6 @@ import { Router } from "express";
 import { 
     createPlatformListing, 
     getAllPlatformListing,
-    getPlatformListingById,
     updatePlatformListing,
     deletePlatformListing
 } from "../controllers/platformlisting.controller.js";
@@ -17,7 +16,6 @@ router.route("/")
     .get(getAllPlatformListing);
 
 router.route("/:listingId")
-    .get(getPlatformListingById)
     .patch(updatePlatformListing)
     .delete(deletePlatformListing);
 
