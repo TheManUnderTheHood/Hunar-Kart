@@ -53,7 +53,7 @@ const ItemDetail = () => {
                     <div className="divide-y divide-slate-700">
                         <DetailRow icon={ShoppingBag} label="Name" value={item.name} />
                         <DetailRow icon={Tag} label="Category" value={item.category || 'N/A'} />
-                        <DetailRow icon={DollarSign} label="Price" value={`$${parseFloat(item.price).toFixed(2)}`} />
+                        <DetailRow icon={DollarSign} label="Price" value={new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)} />
                         <DetailRow icon={Archive} label="Quantity in Stock" value={item.quantity} />
                         <DetailRow icon={Tag} label="Status" value={item.status} />
                          <DetailRow icon={CalendarCheck} label="Upload Date" value={new Date(item.uploadDate).toLocaleDateString()} />

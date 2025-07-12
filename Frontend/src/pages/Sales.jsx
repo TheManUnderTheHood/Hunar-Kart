@@ -19,17 +19,17 @@ const Sales = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({ itemID: '', artisanID: '', platformName: '', quantitySold: '', totalRevenue: '' });
-    
-    // Search and sort states
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'descending' });
     
-    const fetchData = async () => {
-        try { setLoading(true); const [s, i, a] = await Promise.all([ apiClient.get('/sales'), apiClient.get('/handcrafteditem'), apiClient.get('/artisans') ]); setSales(s.data.data.sales || []); setItems(i.data.data.items || []); setArtisans(a.data.data.artisans || []); }
-        catch (err) { toast.error('Failed to fetch data.'); } 
-        finally { setLoading(false); }
-    };
-    useEffect(() => { fetchData() }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+            try { setLoading(true); const [s, i, a] = await Promise.all([ apiClient.get('/sales'), apiClient.get('/handcrafteditem'), apiClient.get('/artisans') ]); setSales(s.data.data.sales || []); setItems(i.data.data.items || []); setArtisans(a.data.data.artisans || []); }
+            catch (err) { toast.error('Failed to fetch sales data.'); } 
+            finally { setLoading(false); }
+        };
+        fetchData();
+    }, []);
     
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => setIsModalOpen(false);
@@ -81,15 +81,7 @@ const Sales = () => {
         return sortConfig.direction === 'ascending' ? <ArrowUp className="h-3 w-3 ml-1"/> : <ArrowDown className="h-3 w-3 ml-1"/>;
     };
 
-    const tableHeaders = [
-        { name: "Item", key: "itemID", sortable: true },
-        { name: "Artisan", key: "artisanID", sortable: true },
-        { name: "Platform", key: "platformName", sortable: true },
-        { name: "Quantity", key: "quantitySold", sortable: true },
-        { name: "Revenue", key: "totalRevenue", sortable: true },
-        { name: "Date", key: "date", sortable: true },
-        { name: "Actions", key: "actions", sortable: false },
-    ];
+    const tableHeaders = [{ name: "Item", key: "itemID", sortable: true }, { name: "Artisan", key: "artisanID", sortable: true }, { name: "Platform", key: "platformName", sortable: true }, { name: "Quantity", key: "quantitySold", sortable: true }, { name: "Revenue", key: "totalRevenue", sortable: true }, { name: "Date", key: "date", sortable: true }, { name: "Actions", key: "actions", sortable: false }];
     
     if (loading) return <div className="flex h-full items-center justify-center"><Spinner size="lg" /></div>;
 
@@ -105,9 +97,9 @@ const Sales = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{sale.artisanID?.name || 'N/A'}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{sale.platformName}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{sale.quantitySold}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">${parseFloat(sale.totalRevenue).toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(sale.totalRevenue)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Date(sale.date).toLocaleDateString()}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium"><Button variant="ghost" onClick={() => handleDelete(sale._id)} className="p-2 h-auto text-red-500 hover:bg-red-500/10 hover:text-red-400"><Trash2 className="h-4 w-4"/></Button></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium"><Button variant="ghost" onClick={() => handleDelete(sale._id)} className="p-2 h-auto text-red-500 hover:bg-red-500/10 hover:text-red-400" aria-label="Delete Sale"><Trash2 className="h-4 w-4"/></Button></td>
                     </tr>
                 )}
             />
@@ -117,7 +109,7 @@ const Sales = () => {
                     <FormSelect name="artisanID" label="Artisan" value={formData.artisanID} onChange={handleInputChange} options={artisans} required />
                     <FormInput name="platformName" label="Platform Name" value={formData.platformName} onChange={handleInputChange} required />
                     <FormInput name="quantitySold" type="number" label="Quantity Sold" value={formData.quantitySold} onChange={handleInputChange} required />
-                    <FormInput name="totalRevenue" type="number" step="0.01" label="Total Revenue ($)" value={formData.totalRevenue} onChange={handleInputChange} required />
+                    <FormInput name="totalRevenue" type="number" step="0.01" label="Total Revenue (₹)" value={formData.totalRevenue} onChange={handleInputChange} required />
                     <div className="flex justify-end gap-2 pt-4"><Button type="button" variant="secondary" onClick={handleCloseModal}>Cancel</Button><Button type="submit" loading={isSubmitting}>Record Sale</Button></div>
                 </form>
             </Modal>

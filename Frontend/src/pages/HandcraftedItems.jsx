@@ -21,8 +21,6 @@ const HandcraftedItems = () => {
     const [currentItem, setCurrentItem] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({ artisanID: '', name: '', description: '', category: '', price: '', quantity: '', status: 'Available' });
-    
-    // Search and Sort states
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
 
@@ -89,10 +87,7 @@ const HandcraftedItems = () => {
         sortableItems.sort((a, b) => {
             let aVal = a[sortConfig.key];
             let bVal = b[sortConfig.key];
-            if(sortConfig.key === 'artisanID') { // Special case for nested object sorting
-                aVal = a.artisanID?.name || '';
-                bVal = b.artisanID?.name || '';
-            }
+            if(sortConfig.key === 'artisanID') { aVal = a.artisanID?.name || ''; bVal = b.artisanID?.name || ''; }
             if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1;
             if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1;
             return 0;
@@ -111,51 +106,34 @@ const HandcraftedItems = () => {
         return sortConfig.direction === 'ascending' ? <ArrowUp className="h-3 w-3 ml-1"/> : <ArrowDown className="h-3 w-3 ml-1"/>;
     };
     
-    const tableHeaders = [
-        { name: "Name", key: "name", sortable: true },
-        { name: "Artisan", key: "artisanID", sortable: true },
-        { name: "Price", key: "price", sortable: true },
-        { name: "Quantity", key: "quantity", sortable: true },
-        { name: "Status", key: "status", sortable: true },
-        { name: "Actions", key: "actions", sortable: false },
-    ];
+    const tableHeaders = [{ name: "Name", key: "name", sortable: true }, { name: "Artisan", key: "artisanID", sortable: true }, { name: "Price", key: "price", sortable: true }, { name: "Quantity", key: "quantity", sortable: true }, { name: "Status", key: "status", sortable: true }, { name: "Actions", key: "actions", sortable: false }];
     
     if(loading) return <div className="flex h-full items-center justify-center"><Spinner size="lg" /></div>;
     
     return (
         <div>
-            <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
-                <h1 className="text-3xl font-bold text-white">Handcrafted Items</h1>
-                <div className="flex items-center gap-2">
-                    <SearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search by item name..." />
-                    <Button onClick={()=>handleOpenModal()} className="gap-2 shrink-0"><PlusCircle className="h-5 w-5"/>Add Item</Button>
-                </div>
-            </div>
-            
+            <div className="flex justify-between items-center mb-6 gap-4 flex-wrap"><h1 className="text-3xl font-bold text-white">Handcrafted Items</h1><div className="flex items-center gap-2"><SearchInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search by item name..." /><Button onClick={()=>handleOpenModal()} className="gap-2 shrink-0"><PlusCircle className="h-5 w-5"/>Add Item</Button></div></div>
             <Table
-                headers={tableHeaders.map(h => (
-                    <div onClick={() => h.sortable && requestSort(h.key)} className={`flex items-center ${h.sortable ? 'cursor-pointer' : ''}`}>{h.name} {getSortIcon(h.key)}</div>
-                ))}
+                headers={tableHeaders.map(h => (<div onClick={() => h.sortable && requestSort(h.key)} className={`flex items-center ${h.sortable ? 'cursor-pointer' : ''}`}>{h.name} {getSortIcon(h.key)}</div>))}
                 data={processedItems}
                 renderRow={(item) => (
                     <tr key={item._id} className="transition-colors hover:bg-slate-800/60">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{item.name}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{item.artisanID?.name || 'N/A'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">${parseFloat(item.price).toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{item.quantity}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{item.status}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium"><div className='flex gap-1'><Link to={`/items/${item._id}`}><Button variant="ghost" className="p-2 h-auto" aria-label="View Details"><Eye className="h-4 w-4"/></Button></Link><Button variant="ghost" onClick={() => handleOpenModal(item)} className="p-2 h-auto" aria-label="Edit Item"><Edit className="h-4 w-4"/></Button><Button variant="ghost" onClick={() => handleDelete(item._id)} className="p-2 h-auto text-red-500 hover:bg-red-500/10 hover:text-red-400" aria-label="Delete Item"><Trash2 className="h-4 w-4"/></Button></div></td>
                     </tr>
                 )}
             />
-            
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={currentItem ? 'Edit Item' : 'Add New Item'}>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <FormSelect name="artisanID" label="Artisan" value={formData.artisanID} onChange={handleInputChange} options={artisans} required/>
                     <FormInput name="name" label="Item Name" value={formData.name} onChange={handleInputChange} required />
                     <FormInput name="description" label="Description" value={formData.description} onChange={handleInputChange} />
                     <FormInput name="category" label="Category" value={formData.category} onChange={handleInputChange} />
-                    <FormInput name="price" label="Price" type="number" step="0.01" value={formData.price} onChange={handleInputChange} required />
+                    <FormInput name="price" label="Price (in ₹)" type="number" step="0.01" value={formData.price} onChange={handleInputChange} required />
                     <FormInput name="quantity" label="Quantity" type="number" value={formData.quantity} onChange={handleInputChange} required />
                     <FormSelect name="status" label="Status" value={formData.status} onChange={handleInputChange} options={['Available', 'Sold', 'Draft'].map(v => ({ _id: v, name: v }))} required />
                     <div className="flex justify-end gap-2 pt-4">

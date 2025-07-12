@@ -22,6 +22,12 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const formatToINR = (num) => new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2,
+    }).format(num);
+
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -63,7 +69,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
                 <StatCard icon={Users} title="Total Artisans" value={stats.artisans} color="text-sky-400" />
                 <StatCard icon={ShoppingBag} title="Total Items" value={stats.items} color="text-emerald-400" />
-                <StatCard icon={DollarSign} title="Total Sales" value={stats.sales} subtitle={`Revenue: $${stats.revenue.toFixed(2)}`} color="text-amber-400" />
+                <StatCard icon={DollarSign} title="Total Sales" value={stats.sales} subtitle={`Revenue: ${formatToINR(stats.revenue)}`} color="text-amber-400" />
                 <StatCard icon={List} title="Active Listings" value={stats.listings} color="text-violet-400" />
             </div>
 
