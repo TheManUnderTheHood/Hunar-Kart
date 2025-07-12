@@ -1,40 +1,89 @@
 Hunar-Kart/
-├── .env
-├── .gitignore
-├── package.json
-└── src/
-    ├── app.js                  // Central Express app configuration
-    ├── constants.js
-    ├── index.js                // Main entry point (connects DB, starts server)
-    ├── db/
-    │   └── index.js            // Database connection logic
-    ├── models/
-    │   ├── AdminOperator.model.js
-    │   ├── AgreementDocument.model.js
-    │   ├── Artisan.model.js
-    │   ├── HandcraftedItem.model.js
-    │   ├── PlatformListing.model.js
-    │   └── Sales.model.js
-    ├── controllers/
-    │   ├── artisan.controller.js
-    │   ├── handcrafteditem.controller.js
-    │   ├── adminoperator.controller.js
-    │   ├── agreementdocument.controller.js
-    │   ├── platformlisting.controller.js
-    │   └── sales.controller.js
-    ├── routes/
-    │   ├── artisan.routes.js
-    │   ├── handcraftedItem.routes.js
-    │   ├── adminoperator.routes.js
-    │   ├── agreementdocument.routes.js
-    │   ├── platformlisting.routes.js
-    │   └── sales.routes.js
-    ├── utils/
-    │   ├── AsyncHandler.js
-    │   ├── ApiResponse.js
-    │   ├── ApiError.js
-    │   └── cloudinary.js
-    └── middlewares/
-	├── multer.middleware.js
-	├── error.middleware.js
-        └── auth.middleware.js 			 
+├── Backend/
+│    ├── .env
+│    ├── .gitignore
+│    ├── package.json
+│    └── src/
+│        ├── app.js                  
+│        ├── constants.js
+│       ├── index.js                
+│       ├── db/
+│        │   └── index.js            
+│        ├── models/
+│        │   ├── AdminOperator.model.js
+│        │   ├── AgreementDocument.model.js
+│        │   ├── Artisan.model.js
+│        │   ├── HandcraftedItem.model.js
+│        │   ├── PlatformListing.model.js
+│        │   └── Sales.model.js
+│        ├── controllers/
+│        │   ├── artisan.controller.js
+│        │   ├── handcrafteditem.controller.js
+│        │   ├── adminoperator.controller.js
+│        │   ├── agreementdocument.controller.js
+│        │   ├── platformlisting.controller.js
+│        │   └── sales.controller.js
+│        ├── routes/
+│        │   ├── artisan.routes.js
+│        │   ├── handcraftedItem.routes.js
+│        │   ├── adminoperator.routes.js
+│        │   ├── agreementdocument.routes.js
+│        │   ├── platformlisting.routes.js
+│        │   └── sales.routes.js
+│        ├── utils/
+│        │   ├── AsyncHandler.js
+│        │   ├── ApiResponse.js
+│        │   ├── ApiError.js
+│        │   └── cloudinary.js
+│        └── middlewares/
+│        ├── multer.middleware.js
+│        ├── error.middleware.js
+│            └── auth.middleware.js 			 
+├── Frontend/
+│    ├── .env.local                 
+│    ├── .gitignore                 
+│    ├── index.html                 
+│    ├── package.json               
+│    ├── public/
+│    │   ├── background.png
+│    │   └── logo.svg               
+│    ├── src/
+│    │   ├── api/
+│    │   │   └── axiosConfig.js     
+│    │   ├── components/
+│    │   │   ├── dashboard/
+│    │   │   │   └── SalesChart.jsx   
+│    │   │   ├── layout/
+│    │   │   │   ├── Header.jsx       
+│    │   │   │   └── Sidebar.jsx      
+│    │   │   └── ui/
+│    │   │       ├── Button.jsx       
+│    │   │       ├── Card.jsx         
+│    │   │       ├── FormError.jsx    
+│    │   │       ├── Input.jsx        
+│    │   │       ├── Modal.jsx        
+│    │   │       ├── SearchInput.jsx  
+│    │   │       ├── Spinner.jsx      
+│    │   │       └── Table.jsx        
+│    │   ├── context/
+│    │   │   └── AuthContext.jsx    
+│    │   ├── hooks/
+│    │   │   └── useAuth.js         
+│    │   ├── pages/
+│    │   │   ├── AgreementDocuments.jsx
+│    │   │   ├── ArtisanDetail.jsx
+│    │   │   ├── Artisans.jsx
+│    │   │   ├── Dashboard.jsx
+│    │   │   ├── HandcraftedItems.jsx
+│    │   │   ├── ItemDetail.jsx
+│    │   │   ├── Login.jsx
+│    │   │   ├── NotFound.jsx
+│    │   │   ├── Operators.jsx
+│    │   │   ├── PlatformListings.jsx
+│    │   │   ├── Profile.jsx
+│    │   │   └── Sales.jsx
+│    │   ├── App.jsx                
+│    │   ├── main.jsx               
+│    │   └── tailwind.css           
+│    └── vite.config.mjs            
+└─ package.json
