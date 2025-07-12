@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import useAuth from './hooks/useAuth';
+import { setupInterceptors } from './api/axiosConfig';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 
@@ -44,6 +46,14 @@ const AdminRoute = () => {
 };
 
 function App() {
+  const authContext = useAuth();
+
+  useEffect(() => {
+    // Setup interceptors on app startup, passing in the auth context
+    // so the interceptor can call the logout function if needed.
+    setupInterceptors(authContext);
+  }, [authContext]);
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
