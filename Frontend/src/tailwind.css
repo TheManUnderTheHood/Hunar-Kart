@@ -10,6 +10,25 @@
   --default-ring-color: var(--color-primary-focus);
 }
 
+html, body {
+  height: 100%;
+}
+
+body {
+  background-image: url('/background-landscape.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  transition: background-image 0.5s ease-in-out;
+}
+
+@media (orientation: portrait) {
+  body {
+    background-image: url('/background-portrait.png');
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
