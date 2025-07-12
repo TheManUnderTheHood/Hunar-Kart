@@ -4,7 +4,7 @@
   --color-primary: var(--color-sky-500);
   --color-primary-hover: var(--color-sky-600);
   --color-primary-focus: var(--color-sky-400);
-
+  --color-sky-500-rgb: 14, 165, 233;
   --default-border-color: var(--color-slate-700);
   --default-ring-width: 2px;
   --default-ring-color: var(--color-primary-focus);
