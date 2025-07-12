@@ -15,7 +15,7 @@ html, body {
 }
 
 body {
-  background-image: url('/background-landscape.png');
+  background-image: url('/background.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
