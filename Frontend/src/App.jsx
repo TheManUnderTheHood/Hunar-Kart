@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import useAuth from './hooks/useAuth';
 import { setupInterceptors } from './api/axiosConfig';
 import Sidebar from './components/layout/Sidebar';
@@ -21,6 +21,8 @@ import NotFound from './pages/NotFound';
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -30,8 +32,12 @@ const ProtectedRoute = () => {
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8">
-          <Outlet />
+        <main
+            key={location.pathname}
+            className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8"
+            style={{ animation: 'contentFadeInUp 0.5s ease-out forwards' }}
+        >
+            <Outlet />
         </main>
       </div>
     </div>
@@ -49,15 +55,12 @@ function App() {
   const authContext = useAuth();
 
   useEffect(() => {
-    // Setup interceptors on app startup, passing in the auth context
-    // so the interceptor can call the logout function if needed.
     setupInterceptors(authContext);
   }, [authContext]);
 
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/artisans" element={<Artisans />} />
@@ -72,7 +75,6 @@ function App() {
             <Route path="/operators" element={<Operators />} />
         </Route>
       </Route>
-
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

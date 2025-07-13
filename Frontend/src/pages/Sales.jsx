@@ -37,15 +37,21 @@ const Sales = () => {
         resolver: zodResolver(saleSchema)
     });
 
-    const fetchData = async () => { try { setLoading(true); const [s,i,a]=await Promise.all([apiClient.get('/sales'),apiClient.get('/handcrafteditem'),apiClient.get('/artisans')]); setSales(s.data.data.sales||[]);setItems(i.data.data.items||[]);setArtisans(a.data.data.artisans||[]); } catch(e){ toast.error('Failed to fetch data.'); } finally{ setLoading(false); } };
+    const fetchData = async () => { try { setLoading(true); const [s,i,a] = await Promise.all([ apiClient.get('/sales'), apiClient.get('/handcrafteditem'), apiClient.get('/artisans') ]); setSales(s.data.data.sales || []); setItems(i.data.data.items || []); setArtisans(a.data.data.artisans || []); } catch (err) { toast.error('Failed to fetch sales data.'); } finally { setLoading(false); }};
     useEffect(() => { fetchData() }, []);
-
-    const handleOpenModal = () => { reset({ itemID:'',artisanID:'',platformName:'',quantitySold:'',totalRevenue:'' }); setIsModalOpen(true); };
+    
+    const handleOpenModal = () => { reset({ itemID: '', artisanID: '', platformName: '', quantitySold: '', totalRevenue: '' }); setIsModalOpen(true); };
     const handleCloseModal = () => { setIsModalOpen(false); reset(); };
-    const onSubmit = async(data) => { await toast.promise(apiClient.post('/sales', data), { loading: 'Recording...', success: 'Sale recorded!', error: e=>e.response?.data?.message||'Failed.' }).then(()=>{fetchData();handleCloseModal()}); };
-    const handleDelete = async (id) => { if(window.confirm('ADMIN ONLY: Delete?')){await toast.promise(apiClient.delete(`/sales/${id}`), { loading: 'Deleting...', success: 'Deleted.', error: e=>e.response?.data?.message||'Failed.' }).then(()=>setSales(p=>p.filter(s=>s._id!==id))); }};
-    const processedSales = useMemo(() => { let s=[...sales]; s.sort((a,b)=>{let x=a[sortConfig.key],y=b[sortConfig.key]; if(sortConfig.key==='itemID'){x=a.itemID?.name||'';y=b.itemID?.name||''} if(x<y)return sortConfig.direction==='ascending'?-1:1; if(x>y)return sortConfig.direction==='ascending'?1:-1; return 0;}); return s.filter(s => s.itemID?.name.toLowerCase().includes(searchTerm.toLowerCase())||s.platformName.toLowerCase().includes(searchTerm.toLowerCase()))},[sales,searchTerm,sortConfig]);
-    const requestSort = (k) => { let d='ascending';if(sortConfig.key===k&&sortConfig.direction==='ascending')d='descending';setSortConfig({key:k,direction:d}) };
+    const onSubmit = async (data) => { await toast.promise(apiClient.post('/sales', data), { loading: 'Recording sale...', success: 'Sale recorded!', error: err => err.response?.data?.message || 'Failed.' }).then(() => { fetchData(); handleCloseModal(); }); };
+    const handleDelete = async (saleId) => { if (window.confirm('ADMIN ONLY: Delete sale?')) { await toast.promise(apiClient.delete(`/sales/${saleId}`), { loading: 'Deleting...', success: 'Sale deleted.', error: err => err.response?.data?.message || 'Failed to delete.' }).then(() => setSales(prev => prev.filter(s => s._id !== saleId))); }};
+
+    const processedSales = useMemo(() => {
+        return sales
+            .filter(sale => sale.itemID?.name.toLowerCase().includes(searchTerm.toLowerCase()) || sale.platformName.toLowerCase().includes(searchTerm.toLowerCase()))
+            .sort((a, b) => { let aVal = a[sortConfig.key], bVal = b[sortConfig.key]; if (sortConfig.key === 'itemID') { aVal = a.itemID?.name || ''; bVal = b.itemID?.name || ''; } if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1; if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1; return 0; });
+    }, [sales, searchTerm, sortConfig]);
+
+    const requestSort = (key) => { let dir = 'ascending'; if (sortConfig.key === key && sortConfig.direction === 'ascending') dir = 'descending'; setSortConfig({ key, direction: dir }); };
     const getSortIcon = (k) => { if(sortConfig.key!==k)return null;return sortConfig.direction==='ascending'?<ArrowUp className="h-3 w-3 ml-1"/>:<ArrowDown className="h-3 w-3 ml-1"/>;};
     const tableHeaders = [{ name: "Item", key: "itemID", sortable: true }, { name: "Artisan", key: "artisanID", sortable: true }, { name: "Platform", key: "platformName", sortable: true }, { name: "Qty", key: "quantitySold", sortable: true }, { name: "Revenue", key: "totalRevenue", sortable: true }, { name: "Date", key: "date", sortable: true }, { name: "Actions", key: "actions", sortable: false }];
     
@@ -53,11 +59,21 @@ const Sales = () => {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-6 gap-4 flex-wrap"><h1 className="text-3xl font-bold text-white">Sales Records</h1><div className="flex items-center gap-2"><SearchInput value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search item or platform..." /><Button onClick={handleOpenModal} className="gap-2 shrink-0"><PlusCircle className="h-5 w-5"/> Record a Sale</Button></div></div>
+            <div className="flex justify-between items-center mb-6 gap-4 flex-wrap"><h1 className="text-3xl font-bold text-glow">Sales Records</h1><div className="flex items-center gap-2"><SearchInput value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search item or platform..." /><Button onClick={handleOpenModal} className="gap-2 shrink-0"><PlusCircle className="h-5 w-5"/> Record a Sale</Button></div></div>
             <Table
                 headers={tableHeaders.map(h => (<div onClick={() => h.sortable && requestSort(h.key)} className={`flex items-center ${h.sortable ? 'cursor-pointer' : ''}`}>{h.name} {getSortIcon(h.key)}</div>))}
                 data={processedSales}
-                renderRow={(sale) => (<tr key={sale._id} className="transition-colors hover:bg-slate-800/60"><td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{sale.itemID?.name||'N/A'}</td><td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{sale.artisanID?.name||'N/A'}</td><td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{sale.platformName}</td><td className="px-6 py-4 text-center text-sm text-slate-300">{sale.quantitySold}</td><td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Intl.NumberFormat('en-IN', {style:'currency', currency:'INR'}).format(sale.totalRevenue)}</td><td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Date(sale.date).toLocaleDateString()}</td><td className="px-6 py-4 text-center"><Button variant="ghost" onClick={() => handleDelete(sale._id)} className="p-2 h-auto text-red-500"><Trash2 className="h-4 w-4"/></Button></td></tr>)}
+                renderRow={(sale, index) => (
+                    <tr key={sale._id} className="transition-colors hover:bg-slate-800/60" style={{ animation: 'tableRowFadeIn 0.5s ease-out forwards', animationDelay: `${index * 0.03}s`, opacity: 0 }}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{sale.itemID?.name || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{sale.artisanID?.name || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{sale.platformName}</td>
+                        <td className="px-6 py-4 text-center text-sm text-slate-300">{sale.quantitySold}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(sale.totalRevenue)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Date(sale.date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 text-center"><Button variant="ghost" onClick={() => handleDelete(sale._id)} className="p-2 h-auto text-red-500" aria-label="Delete Sale"><Trash2 className="h-4 w-4"/></Button></td>
+                    </tr>
+                )}
             />
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Record New Sale">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
