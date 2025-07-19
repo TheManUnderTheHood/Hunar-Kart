@@ -41,11 +41,12 @@ html, body {
 }
 
 body {
-  background-image: url('/background.png');
+  /* background-image: url('/background.png');
   background-size: contain;
   background-position: center;
   background-attachment: fixed;
-  background-repeat: repeat;
+  background-repeat: repeat; */
+  background-color: aliceblue
 }
 
 @layer base {
