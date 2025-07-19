@@ -6,6 +6,21 @@ import App from './App.jsx';
 import './tailwind.css';
 import { AuthProvider } from './context/AuthContext.jsx';
 
+
+
+
+
+const theme = localStorage.getItem('theme');
+if (theme === 'light') {
+  document.documentElement.classList.remove('dark');
+} else {
+  document.documentElement.classList.add('dark');
+}
+
+
+
+
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>

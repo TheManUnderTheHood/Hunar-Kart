@@ -48,7 +48,7 @@ body {
   background-repeat: repeat;
   /* background-color: white */
 }
-
+`
 @layer base {
   body { @apply antialiased; }
 }
