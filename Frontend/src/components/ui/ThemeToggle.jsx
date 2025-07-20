@@ -5,13 +5,21 @@ export default function ThemeToggle() {
     document.documentElement.classList.contains('dark')
   );
 
-  const toggleTheme = () => {
-    const html = document.documentElement;
-    const isCurrentlyDark = html.classList.contains('dark');
-    html.classList.toggle('dark');
-    localStorage.setItem('theme', isCurrentlyDark ? 'light' : 'dark');
-    setIsDark(!isCurrentlyDark);
-  };
+ const toggleTheme = () => {
+  const html = document.documentElement;
+  if (html.classList.contains('dark')) {
+    html.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+    console.log("Switched to light mode");
+    setIsDark(false);
+  } else {
+    html.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+    console.log("Switched to dark mode");
+    setIsDark(true);
+  }
+};
+
 
   useEffect(() => {
     const saved = localStorage.getItem('theme');
