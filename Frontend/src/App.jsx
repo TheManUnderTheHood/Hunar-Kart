@@ -28,20 +28,21 @@ const ProtectedRoute = () => {
   }
 
   return (
-    <div className="flex h-screen bg-slate-900/20">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header />
-        <main
-            key={location.pathname}
-            className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8"
-            style={{ animation: 'contentFadeInUp 0.5s ease-out forwards' }}
-        >
-            <Outlet />
-        </main>
-      </div>
+  <div className="flex h-screen bg-gray-100 text-black dark:bg-slate-900 dark:text-slate-200">
+    <Sidebar />
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <Header />
+      <main
+        key={location.pathname}
+        className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8"
+        style={{ animation: 'contentFadeInUp 0.5s ease-out forwards' }}
+      >
+        <Outlet />
+      </main>
     </div>
-  );
+  </div>
+);
+
 };
 
 const AdminRoute = () => {

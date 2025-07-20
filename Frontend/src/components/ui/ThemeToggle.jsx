@@ -21,10 +21,9 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="text-slate-300 hover:text-white px-3 py-1 rounded border border-slate-600"
-      title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      className="text-slate-300 hover:text-white px-3 py-1 border rounded"
     >
-      {isDark ? '☀️ Light' : '🌙 Dark'}
+      {isDark ? '☀️' : '🌙'}
     </button>
   );
 }
