@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(() =>
@@ -7,21 +7,22 @@ export default function ThemeToggle() {
 
   const toggleTheme = () => {
     const html = document.documentElement;
-    if (html.classList.contains('dark')) {
-      html.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      setIsDark(false);
-    } else {
-      html.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      setIsDark(true);
-    }
+    const isCurrentlyDark = html.classList.contains('dark');
+    html.classList.toggle('dark');
+    localStorage.setItem('theme', isCurrentlyDark ? 'light' : 'dark');
+    setIsDark(!isCurrentlyDark);
   };
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    setIsDark(saved === 'dark' || !saved);
+  }, []);
 
   return (
     <button
       onClick={toggleTheme}
-      className="text-slate-300 hover:text-white px-3 py-1 border rounded"
+      className="px-2 py-1 text-slate-300 hover:text-white border rounded"
+      title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
     >
       {isDark ? '☀️' : '🌙'}
     </button>

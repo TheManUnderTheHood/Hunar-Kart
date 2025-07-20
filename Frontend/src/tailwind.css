@@ -54,12 +54,12 @@ html, body {
 @layer base {
   body {
     @apply antialiased bg-white text-black dark:bg-slate-900 dark:text-slate-300;
-    /* background-image: url('/background.png');
+    background-image: url('/background.png');
     background-size: contain;
     background-position: center;
     background-attachment: fixed;
-    background-repeat: no-repeat; */
-    background-color: white;
+    background-repeat: no-repeat;
+    /* background-color: white; */
 
   }
 }

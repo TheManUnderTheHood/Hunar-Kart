@@ -28,7 +28,8 @@ const ProtectedRoute = () => {
   }
 
   return (
-  <div className="flex h-screen bg-gray-100 text-black dark:bg-slate-900 dark:text-slate-200">
+  <div className="flex h-screen bg-white text-black dark:bg-slate-900 dark:text-slate-200">
+
     <Sidebar />
     <div className="flex flex-1 flex-col overflow-hidden">
       <Header />
