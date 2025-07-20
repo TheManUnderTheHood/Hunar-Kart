@@ -1,56 +1,18 @@
 @import "tailwindcss";
 
-/* Theme Variables */
+/* ✅ Optional: Custom theme variables */
 @theme {
   --color-primary: var(--color-sky-500);
   --color-primary-hover: var(--color-sky-600);
   --color-primary-focus: var(--color-sky-400);
-  --color-sky-500-rgb: 14, 165, 233;
-
-  --default-border-color: var(--color-slate-700);
-  --default-ring-width: 2px;
-  --default-ring-color: var(--color-primary-focus);
 }
 
-/* Keyframes */
+/* ✅ Custom animations */
 @keyframes contentFadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes tableRowFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-/* Full Height */
-html, body {
-  height: 100%;
-}
-
-/* Tailwind base layer with light/dark mode styling */
 @layer base {
   body {
     @apply antialiased bg-white text-black dark:bg-slate-900 dark:text-slate-300;
@@ -59,42 +21,17 @@ html, body {
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
-    /* background-color: white; */
-
   }
 }
 
-/* Optional: for separate images in light/dark modes
-html:not(.dark) body {
-  background-image: url('/light-background.png');
-}
-
-html.dark body {
-  background-image: url('/dark-background.png');
-}
-*/
-
-/* Custom Utilities */
-@utility text-glow {
-  @apply bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent;
-}
-
 @utility btn {
-  @apply relative inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:pointer-events-none disabled:opacity-50 px-4 py-2;
+  @apply inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition duration-300 disabled:opacity-50;
 }
 
 @utility btn-primary {
-  @apply btn bg-primary text-white shadow-lg shadow-sky-500/30 hover:bg-primary-hover hover:-translate-y-px;
+  @apply btn bg-primary text-white hover:bg-primary-hover;
 }
 
 @utility btn-secondary {
-  @apply btn bg-slate-700 text-slate-100 hover:bg-slate-600 hover:-translate-y-px;
-}
-
-@utility btn-ghost {
-  @apply btn hover:bg-slate-700/50 hover:text-slate-100;
-}
-
-@utility btn-destructive {
-  @apply btn bg-red-600 text-white shadow-lg shadow-red-500/30 hover:bg-red-700 hover:-translate-y-px;
+  @apply btn bg-slate-700 text-white hover:bg-slate-600;
 }
