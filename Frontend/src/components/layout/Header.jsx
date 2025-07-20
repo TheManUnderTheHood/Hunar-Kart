@@ -15,7 +15,7 @@ const Header = () => {
     };
 
     return (
-        
+
         <header className="flex h-16 items-center justify-between border-b border-slate-300 dark:border-slate-800/80 bg-white text-black dark:bg-slate-900/70 dark:text-white px-4 backdrop-blur-lg sm:px-6">
 
             <div>
@@ -37,13 +37,7 @@ const Header = () => {
                 {/* 🌗 Light/Dark Mode Toggle Button */}
                 <ThemeToggle />
 
-                {/* Logout Button */}
-                <Button
-                    variant="ghost"
-                    onClick={handleLogout}
-                    loading={isLoggingOut}
-                    className="gap-2"
-                ></Button>
+               
 
 
                 <Button variant="ghost" onClick={handleLogout} loading={isLoggingOut} className="gap-2">
