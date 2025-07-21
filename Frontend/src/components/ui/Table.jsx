@@ -1,23 +1,23 @@
 const Table = ({ headers, data, renderRow }) => {
     return (
-        <div className="overflow-hidden border rounded-lg border-slate-700">
+        <div className="overflow-hidden border rounded-lg border-border bg-card/50">
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-700">
-                    <thead className="bg-slate-800">
+                <table className="min-w-full divide-y divide-border">
+                    <thead className="bg-background-offset/50">
                         <tr>
-                            {headers.map((header) => (
-                                <th key={header} scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-left text-slate-300 uppercase">
+                            {headers.map((header, index) => (
+                                <th key={index} scope="col" className="px-6 py-3 text-xs font-medium tracking-wider text-left text-text-secondary uppercase">
                                     {header}
                                 </th>
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="bg-slate-800/50 divide-y divide-slate-700">
+                    <tbody className="divide-y divide-border">
                         {data.length > 0 ? (
                            data.map(renderRow)
                         ) : (
                             <tr>
-                                <td colSpan={headers.length} className="px-6 py-4 text-center text-slate-400">
+                                <td colSpan={headers.length} className="px-6 py-16 text-center text-text-secondary">
                                     No data found.
                                 </td>
                             </tr>

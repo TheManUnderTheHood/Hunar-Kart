@@ -1,63 +1,90 @@
 @import "tailwindcss";
 
+/* --- 1. THEME DEFINITION --- */
 @theme {
+  /* Primary accent colors remain the same */
   --color-primary: var(--color-sky-500);
   --color-primary-hover: var(--color-sky-600);
   --color-primary-focus: var(--color-sky-400);
   --color-sky-500-rgb: 14, 165, 233;
 
-  --default-border-color: var(--color-slate-700);
+  /* We will now use CSS variables for themeable colors */
+  --color-background: var(--theme-background);
+  --color-background-offset: var(--theme-background-offset);
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-border: var(--theme-border);
+  --color-ring: var(--theme-ring);
+  --color-card: var(--theme-card);
+  --color-card-foreground: var(--theme-card-foreground);
+  --color-destructive: var(--color-red-600);
+  --color-destructive-hover: var(--color-red-700);
+  --color-destructive-foreground: var(--color-white);
+
+  /* Default ring settings */
   --default-ring-width: 2px;
-  --default-ring-color: var(--color-primary-focus);
+  --default-ring-color: var(--color-ring);
 }
 
-@keyframes contentFadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+/* --- 2. THEME VARIABLES & ANIMATIONS --- */
+@layer base {
+  /* Define the default DARK MODE colors */
+  :root {
+    --theme-background: var(--color-slate-900);
+    --theme-background-offset: var(--color-slate-800);
+    --theme-text-primary: var(--color-slate-50);
+    --theme-text-secondary: var(--color-slate-400);
+    --theme-border: var(--color-slate-800);
+    --theme-ring: var(--color-slate-300);
+    --theme-card: var(--color-slate-900);
+    --theme-card-foreground: var(--color-slate-50);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  /* Define the overrides for LIGHT MODE */
+  .light {
+    --theme-background: var(--color-slate-50);
+    --theme-background-offset: var(--color-white);
+    --theme-text-primary: var(--color-slate-900);
+    --theme-text-secondary: var(--color-slate-500);
+    --theme-border: var(--color-slate-200);
+    --theme-ring: var(--color-slate-900);
+    --theme-card: var(--color-white);
+    --theme-card-foreground: var(--color-slate-900);
+  }
+
+  /* Apply base styles */
+  body { 
+    @apply antialiased bg-background text-text-primary transition-colors duration-300;
   }
 }
 
-@keyframes tableRowFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
+/* Keyframe animations remain unchanged */
+@keyframes contentFadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tableRowFadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { opacity: 1; } }
 
 html, body {
   height: 100%;
 }
 
-body {
-  background-image: url('/background.png');
-  background-size: contain;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: repeat;
-}
-
-@layer base {
-  body { @apply antialiased; }
-}
-
+/* --- 3. UPDATED CUSTOM UTILITIES --- */
 @utility text-glow {
-  @apply bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent;
+  @apply bg-gradient-to-br from-text-primary to-text-secondary/70 bg-clip-text text-transparent;
 }
 
-@utility btn { @apply relative inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:pointer-events-none disabled:opacity-50 px-4 py-2; }
-@utility btn-primary { @apply btn bg-primary text-white shadow-lg shadow-sky-500/30 hover:bg-primary-hover hover:-translate-y-px; }
-@utility btn-secondary { @apply btn bg-slate-700 text-slate-100 hover:bg-slate-600 hover:-translate-y-px; }
-@utility btn-ghost { @apply btn hover:bg-slate-700/50 hover:text-slate-100; }
-@utility btn-destructive { @apply btn bg-red-600 text-white shadow-lg shadow-red-500/30 hover:bg-red-700 hover:-translate-y-px; }
+@utility btn { 
+  @apply relative inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 px-4 py-2; 
+}
+@utility btn-primary { 
+  @apply btn bg-primary text-white shadow-lg shadow-sky-500/30 hover:bg-primary-hover hover:-translate-y-px; 
+}
+@utility btn-secondary { 
+  @apply btn bg-background-offset text-text-primary border border-border hover:bg-border;
+}
+@utility btn-ghost { 
+  @apply btn hover:bg-background-offset hover:text-text-primary;
+}
+@utility btn-destructive { 
+  @apply btn bg-destructive text-destructive-foreground shadow-lg shadow-red-500/30 hover:bg-destructive-hover hover:-translate-y-px; 
+}

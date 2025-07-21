@@ -14,17 +14,12 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                 style={{ animation: 'scaleIn 0.2s ease-out' }}
                 onClick={(e) => e.stopPropagation()} 
             >
-                <div 
-                    className="
-                      relative max-h-[80vh] flex flex-col rounded-xl bg-slate-800/90 p-6 shadow-xl backdrop-blur-md
-                      border border-slate-700
-                    "
-                >
-                    <div className="flex items-start justify-between pb-4 border-b border-slate-700">
-                        <h2 className="text-xl font-semibold text-white">{title}</h2>
+                <div className="relative max-h-[80vh] flex flex-col rounded-xl bg-background p-6 shadow-xl border border-border">
+                    <div className="flex items-start justify-between pb-4 border-b border-border">
+                        <h2 className="text-xl font-semibold text-text-primary">{title}</h2>
                         <button 
                             onClick={onClose}
-                            className="p-1 rounded-full text-slate-400 hover:bg-slate-700 hover:text-white transition-colors"
+                            className="p-1 rounded-full text-text-secondary hover:bg-background-offset hover:text-text-primary transition-colors"
                         >
                             <X className="w-5 h-5"/>
                         </button>

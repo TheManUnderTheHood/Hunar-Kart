@@ -20,7 +20,7 @@ const SidebarNavLink = ({ to, icon: Icon, label }) => {
         <NavLink
             to={to}
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-2 text-slate-300 transition-all hover:text-white hover:bg-slate-700/50 ${isActive ? 'bg-primary/20 text-white font-semibold' : ''
+              `flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary transition-all hover:text-text-primary hover:bg-background-offset/50 ${isActive ? 'bg-primary/10 text-primary font-semibold' : ''
               }`
             }
         >
@@ -34,18 +34,18 @@ const Sidebar = () => {
     const { user } = useAuth();
 
     return (
-        <aside className="hidden w-64 flex-col border-r border-slate-800/80 bg-slate-900/70 p-4 backdrop-blur-lg md:flex">
-            <div className="flex h-16 items-center gap-3 border-b border-slate-800/80 px-2">
+        <aside className="hidden w-64 flex-col border-r border-border bg-background/70 p-4 backdrop-blur-lg md:flex">
+            <div className="flex h-16 items-center gap-3 border-b border-border px-2">
                 <Gem className="h-8 w-8 text-primary"/>
-                <span className="text-2xl font-bold text-white">HunarKart</span>
+                <span className="text-2xl font-bold text-text-primary">HunarKart</span>
             </div>
             <nav className="mt-6 flex flex-1 flex-col gap-2">
                 {navItems.map(item => <SidebarNavLink key={item.to} {...item} />)}
                 
                 {user?.role === 'Admin' && (
                     <>
-                      <div className="my-2 border-t border-slate-800"></div>
-                      <h3 className="px-3 text-xs font-semibold uppercase text-slate-500">Admin</h3>
+                      <div className="my-2 border-t border-border"></div>
+                      <h3 className="px-3 text-xs font-semibold uppercase text-text-secondary/50">Admin</h3>
                       {adminNavItems.map(item => <SidebarNavLink key={item.to} {...item} />)}
                     </>
                 )}
