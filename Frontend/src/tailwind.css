@@ -28,27 +28,29 @@
 
 /* --- 2. THEME VARIABLES & ANIMATIONS --- */
 @layer base {
-  /* Define the default DARK MODE colors */
+  /* --- DARK MODE (Default) --- */
+  /* Modern greyish dark theme */
   :root {
-    --theme-background: var(--color-slate-900);
-    --theme-background-offset: var(--color-slate-800);
-    --theme-text-primary: var(--color-slate-50);
-    --theme-text-secondary: var(--color-slate-400);
-    --theme-border: var(--color-slate-800);
+    --theme-background: var(--color-slate-950);       /* Almost black for deep contrast */
+    --theme-background-offset: var(--color-slate-900);/* Slightly lighter for UI elements */
+    --theme-text-primary: var(--color-slate-50);      /* White for high-contrast text */
+    --theme-text-secondary: var(--color-slate-400);   /* Muted grey for secondary text */
+    --theme-border: var(--color-slate-800);           /* Subtle border color */
     --theme-ring: var(--color-slate-300);
-    --theme-card: var(--color-slate-900);
+    --theme-card: var(--color-slate-900);             /* Card background */
     --theme-card-foreground: var(--color-slate-50);
   }
 
-  /* Define the overrides for LIGHT MODE */
+  /* --- LIGHT MODE Overrides --- */
+  /* Clean, professional light theme */
   .light {
-    --theme-background: var(--color-slate-50);
-    --theme-background-offset: var(--color-white);
-    --theme-text-primary: var(--color-slate-900);
-    --theme-text-secondary: var(--color-slate-500);
-    --theme-border: var(--color-slate-200);
+    --theme-background: var(--color-slate-100);       /* Off-white, soft background */
+    --theme-background-offset: var(--color-white);    /* Pure white for raised elements */
+    --theme-text-primary: var(--color-slate-900);     /* Dark grey for readable text */
+    --theme-text-secondary: var(--color-slate-500);   /* Lighter grey for secondary info */
+    --theme-border: var(--color-slate-200);           /* Light grey border for definition */
     --theme-ring: var(--color-slate-900);
-    --theme-card: var(--color-white);
+    --theme-card: var(--color-white);                 /* Cards are pure white */
     --theme-card-foreground: var(--color-slate-900);
   }
 
