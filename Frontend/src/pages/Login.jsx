@@ -30,8 +30,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="relative w-full max-w-md space-y-8 rounded-xl bg-card/80 p-8 shadow-xl backdrop-blur-sm border border-border">
+    <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="relative w-full max-w-md space-y-8 rounded-xl bg-card/90 dark:bg-card/80 p-8 shadow-2xl backdrop-blur-lg border border-border">
           <div>
             <Gem className="mx-auto h-12 w-auto text-primary"/>
             <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-text-primary">

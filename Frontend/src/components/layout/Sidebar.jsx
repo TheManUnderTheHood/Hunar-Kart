@@ -34,14 +34,13 @@ const Sidebar = () => {
     const { user } = useAuth();
 
     return (
-        <aside className="hidden w-64 flex-col border-r border-border bg-background/70 p-4 backdrop-blur-lg md:flex">
+        <aside className="hidden w-64 flex-col border-r border-border bg-background/80 p-4 backdrop-blur-lg md:flex">
             <div className="flex h-16 items-center gap-3 border-b border-border px-2">
                 <Gem className="h-8 w-8 text-primary"/>
                 <span className="text-2xl font-bold text-text-primary">HunarKart</span>
             </div>
             <nav className="mt-6 flex flex-1 flex-col gap-2">
                 {navItems.map(item => <SidebarNavLink key={item.to} {...item} />)}
-                
                 {user?.role === 'Admin' && (
                     <>
                       <div className="my-2 border-t border-border"></div>

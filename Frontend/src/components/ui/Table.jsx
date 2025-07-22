@@ -1,6 +1,6 @@
 const Table = ({ headers, data, renderRow }) => {
     return (
-        <div className="overflow-hidden border rounded-lg border-border bg-card/50">
+        <div className="overflow-hidden border rounded-lg border-border bg-card/90 dark:bg-card/80 shadow-lg backdrop-blur-sm">
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-border">
                     <thead className="bg-background-offset/50">

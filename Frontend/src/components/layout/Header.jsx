@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from 'react-router-dom';
 import useAuth from "../../hooks/useAuth";
 import Button from "../ui/Button";
-import ThemeToggle from "../ui/ThemeToggle"; // Import the new component
+import ThemeToggle from "../ui/ThemeToggle";
 import { LogOut, User } from "lucide-react";
 
 const Header = () => {
@@ -15,7 +15,7 @@ const Header = () => {
     };
 
     return (
-        <header className="flex h-16 items-center justify-between border-b border-border bg-background/70 px-4 backdrop-blur-lg sm:px-6">
+        <header className="flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-lg sm:px-6">
             <div>
                 <h1 className="text-xl font-semibold text-text-primary">Welcome, {user?.name || "Operator"}!</h1>
             </div>
@@ -30,11 +30,8 @@ const Header = () => {
                     )}
                     <span className="hidden sm:inline text-text-primary">{user?.email}</span>
                 </Link>
-
-                <ThemeToggle /> {/* Add the toggle button here */}
-
-                <div className="h-6 w-px bg-border"></div> {/* Separator */}
-
+                <ThemeToggle />
+                <div className="h-6 w-px bg-border"></div>
                 <Button variant="ghost" onClick={handleLogout} loading={isLoggingOut} className="gap-2">
                    {!isLoggingOut && <LogOut className="h-4 w-4"/>}
                    <span>Logout</span>

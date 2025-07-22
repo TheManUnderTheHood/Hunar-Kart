@@ -2,13 +2,11 @@
 
 /* --- 1. THEME DEFINITION --- */
 @theme {
-  /* Primary accent colors remain the same */
   --color-primary: var(--color-sky-500);
   --color-primary-hover: var(--color-sky-600);
   --color-primary-focus: var(--color-sky-400);
   --color-sky-500-rgb: 14, 165, 233;
 
-  /* We will now use CSS variables for themeable colors */
   --color-background: var(--theme-background);
   --color-background-offset: var(--theme-background-offset);
   --color-text-primary: var(--theme-text-primary);
@@ -21,7 +19,6 @@
   --color-destructive-hover: var(--color-red-700);
   --color-destructive-foreground: var(--color-white);
 
-  /* Default ring settings */
   --default-ring-width: 2px;
   --default-ring-color: var(--color-ring);
 }
@@ -29,29 +26,31 @@
 /* --- 2. THEME VARIABLES & ANIMATIONS --- */
 @layer base {
   /* --- DARK MODE (Default) --- */
-  /* Modern greyish dark theme */
+  /* Modern greyish dark theme with subtle transparency */
   :root {
-    --theme-background: var(--color-slate-950);       /* Almost black for deep contrast */
-    --theme-background-offset: var(--color-slate-900);/* Slightly lighter for UI elements */
-    --theme-text-primary: var(--color-slate-50);      /* White for high-contrast text */
-    --theme-text-secondary: var(--color-slate-400);   /* Muted grey for secondary text */
-    --theme-border: var(--color-slate-800);           /* Subtle border color */
+    --theme-background: var(--color-slate-950);
+    --theme-background-offset: var(--color-slate-900);
+    --theme-text-primary: var(--color-slate-50);
+    --theme-text-secondary: var(--color-slate-400);
+    --theme-border: var(--color-slate-800);
     --theme-ring: var(--color-slate-300);
-    --theme-card: var(--color-slate-900);             /* Card background */
+    /* Card is semi-transparent dark grey */
+    --theme-card: 224 71.4% 11%; /* hsl(224, 71.4%, 11%) - slate-900 */
     --theme-card-foreground: var(--color-slate-50);
   }
 
   /* --- LIGHT MODE Overrides --- */
   /* Clean, professional light theme */
   .light {
-    --theme-background: var(--color-slate-100);       /* Off-white, soft background */
-    --theme-background-offset: var(--color-white);    /* Pure white for raised elements */
-    --theme-text-primary: var(--color-slate-900);     /* Dark grey for readable text */
+    --theme-background: var(--color-slate-100);
+    --theme-background-offset: var(--color-slate-200); /* Slightly darker for offsets */
+    --theme-text-primary: var(--color-slate-800);     /* Dark grey for readability */
     --theme-text-secondary: var(--color-slate-500);   /* Lighter grey for secondary info */
     --theme-border: var(--color-slate-200);           /* Light grey border for definition */
     --theme-ring: var(--color-slate-900);
-    --theme-card: var(--color-white);                 /* Cards are pure white */
-    --theme-card-foreground: var(--color-slate-900);
+    /* Card is mostly opaque white */
+    --theme-card: 0 0% 100%; /* hsl(0, 0%, 100%) - white */
+    --theme-card-foreground: var(--color-slate-800);
   }
 
   /* Apply base styles */
