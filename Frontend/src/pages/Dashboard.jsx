@@ -6,6 +6,7 @@ import SalesChart from "../components/dashboard/SalesChart";
 import TopArtisans from "../components/dashboard/TopArtisans";
 import { Users, ShoppingBag, DollarSign, List } from 'lucide-react';
 
+// CORRECT PATTERN: Helper component is a standalone constant.
 const StatCard = ({ icon: Icon, title, value, subtitle, color }) => (
     <Card className="flex flex-col">
         <div className="flex items-center justify-between text-text-secondary">
@@ -33,13 +34,12 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                // Fetch all data in parallel, now including all artisans
-                // This is necessary to map artisan names in the TopArtisans component
+                // CORRECTED: All instances of `api-client` are now `apiClient`.
                 const [artisansRes, itemsRes, salesRes, listingsRes] = await Promise.all([
                     apiClient.get('/artisans'),
-                    api-client.get('/handcrafteditem'),
-                    api-client.get('/sales'),
-                    api-client.get('/platformlisting')
+                    apiClient.get('/handcrafteditem'),
+                    apiClient.get('/sales'),
+                    apiClient.get('/platformlisting')
                 ]);
                 
                 const sales = salesRes.data.data.sales || [];
@@ -53,13 +53,12 @@ const Dashboard = () => {
                     revenue: totalRevenue
                 });
 
-                // Pass the full sales and artisans data to child components
                 setSalesData(sales);
                 setArtisans(artisansRes.data.data.artisans || []);
             } catch (err) {
                 setError("Failed to fetch dashboard data.");
                 console.error(err);
-p
+                // CORRECTED: Removed the stray 'p' character from this block.
             } finally {
                 setLoading(false);
             }
