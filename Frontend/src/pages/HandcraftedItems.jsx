@@ -25,7 +25,20 @@ const itemSchema = z.object({
 });
 
 const FormInputGroup = ({ label, error, registration, ...props }) => (<div><label className="block text-sm font-medium text-slate-300 mb-1">{label}</label><Input {...props} {...registration} /><FormError message={error?.message}/></div>);
-const FormSelectGroup = ({ label, error, registration, options, ...props }) => (<div><label className="block text-sm font-medium text-slate-300 mb-1">{label}</label><select {...props} {...registration} className="block w-full rounded-md border-0 bg-slate-700/50 py-2.5 px-3 text-slate-100 shadow-sm ring-1 ring-inset ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-primary-focus sm:text-sm sm:leading-6"><option value="">Select an option</option>{options.map(opt => <option key={opt._id} value={opt._id}>{opt.name}</option>)}</select><FormError message={error?.message}/></div>);
+const FormSelectGroup = ({ label, error, registration, options, ...props }) => (
+    <div>
+        <label className="block text-sm font-medium text-text-secondary mb-1">{label}</label>
+        <select 
+            {...props} 
+            {...registration} 
+            className="block w-full rounded-md border-0 bg-background-offset/50 py-2.5 px-3 text-text-primary shadow-sm ring-1 ring-inset ring-border focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+        >
+            <option value="">Select an option</option>
+            {options.map(opt => <option key={opt._id || opt.value} value={opt._id || opt.value}>{opt.name || opt.label}</option>)}
+        </select>
+        <FormError message={error?.message}/>
+    </div>
+);
 
 const HandcraftedItems = () => {
     const [items, setItems] = useState([]);
