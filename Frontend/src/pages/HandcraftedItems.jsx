@@ -16,23 +16,25 @@ import { PlusCircle, Edit, Trash2, Eye, ArrowUp, ArrowDown } from 'lucide-react'
 
 const itemSchema = z.object({
     name: z.string().min(3, "Item name must be at least 3 characters"),
-    description: z.string().max(1000, "Description cannot exceed 1000 characters").optional(),
-    category: z.string().optional(),
-    price: z.coerce.number({ invalid_type_error: "Price must be a number" }).positive("Price must be a positive number"),
-    quantity: z.coerce.number({ invalid_type_error: "Quantity must be a number" }).int("Quantity must be a whole number").min(0, "Quantity cannot be negative"),
+    description: z.string().max(1000, "Description cannot exceed 1000 characters").optional().or(z.literal('')),
+    category: z.string().optional().or(z.literal('')),
+    price: z.coerce.number({invalid_type_error: "Price must be a number"}).positive("Price must be a positive number"),
+    quantity: z.coerce.number({invalid_type_error: "Quantity must be a number"}).int("Quantity must be a whole number").min(0, "Quantity cannot be negative"),
     artisanID: z.string().min(1, "An artisan must be selected"),
     status: z.enum(['Available', 'Sold', 'Draft']),
 });
 
-const FormInputGroup = ({ label, error, registration, ...props }) => (<div><label className="block text-sm font-medium text-slate-300 mb-1">{label}</label><Input {...props} {...registration} /><FormError message={error?.message}/></div>);
+const FormInputGroup = ({ label, error, registration, ...props }) => (
+    <div>
+        <label className="block text-sm font-medium text-text-secondary mb-1">{label}</label>
+        <Input {...props} {...registration} />
+        <FormError message={error?.message}/>
+    </div>
+);
 const FormSelectGroup = ({ label, error, registration, options, ...props }) => (
     <div>
         <label className="block text-sm font-medium text-text-secondary mb-1">{label}</label>
-        <select 
-            {...props} 
-            {...registration} 
-            className="block w-full rounded-md border-0 bg-background-offset/50 py-2.5 px-3 text-text-primary shadow-sm ring-1 ring-inset ring-border focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
-        >
+        <select {...props} {...registration} className="block w-full rounded-md border-0 bg-background-offset/50 py-2.5 px-3 text-text-primary shadow-sm ring-1 ring-inset ring-border focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6">
             <option value="">Select an option</option>
             {options.map(opt => <option key={opt._id || opt.value} value={opt._id || opt.value}>{opt.name || opt.label}</option>)}
         </select>
@@ -62,7 +64,7 @@ const HandcraftedItems = () => {
                 setItems(itemsRes.data.data.items || []);
                 setArtisans(artisansRes.data.data.artisans || []);
             } catch (err) {
-                toast.error('Failed to fetch item data.');
+                toast.error('Failed to fetch data.');
             } finally {
                 setLoading(false);
             }
@@ -73,8 +75,7 @@ const HandcraftedItems = () => {
     const handleOpenModal = (item = null) => {
         setCurrentItem(item);
         if (item) {
-            const defaultValues = { ...item, artisanID: item.artisanID._id };
-            reset(defaultValues);
+            reset({ ...item, artisanID: item.artisanID._id });
         } else {
             reset({ artisanID: '', name: '', description: '', category: '', price: '', quantity: '', status: 'Available' });
         }
@@ -120,8 +121,23 @@ const HandcraftedItems = () => {
     const getSortIcon = (name) => { if (sortConfig.key !== name) return null; return sortConfig.direction === 'ascending' ? <ArrowUp className="h-3 w-3 ml-1"/> : <ArrowDown className="h-3 w-3 ml-1"/>; };
     const tableHeaders=[{name:"Name",key:"name",sortable:!0},{name:"Artisan",key:"artisanID",sortable:!0},{name:"Price",key:"price",sortable:!0},{name:"Quantity",key:"quantity",sortable:!0},{name:"Status",key:"status",sortable:!0},{name:"Actions",key:"actions",sortable:!1}];
 
-    if (loading) return <div className="flex h-full items-center justify-center"><Spinner size="lg" /></div>;
-
+    const renderRow = (item, index) => (
+        <tr key={item._id} className="transition-colors hover:bg-background-offset" style={{ animation: 'tableRowFadeIn 0.5s ease-out forwards', animationDelay: `${index * 0.03}s`, opacity: 0 }}>
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">{item.name}</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{item.artisanID?.name || 'N/A'}</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)}</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{item.quantity}</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{item.status}</td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium"><div className='flex gap-1'>
+                <Link to={`/items/${item._id}`}><Button variant="ghost" className="p-2 h-auto" aria-label="View Details"><Eye className="h-4 w-4"/></Button></Link>
+                <Button variant="ghost" onClick={() => handleOpenModal(item)} className="p-2 h-auto" aria-label="Edit Item"><Edit className="h-4 w-4"/></Button>
+                <Button variant="ghost" onClick={() => handleDelete(item._id)} className="p-2 h-auto text-destructive hover:bg-destructive/10" aria-label="Delete Item"><Trash2 className="h-4 w-4"/></Button>
+            </div></td>
+        </tr>
+    );
+    
+    if(loading) return <div className="flex h-full items-center justify-center"><Spinner size="lg" /></div>;
+    
     return (
         <div>
             <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
@@ -134,20 +150,7 @@ const HandcraftedItems = () => {
             <Table
                 headers={tableHeaders.map(h => (<div onClick={() => h.sortable && requestSort(h.key)} className={`flex items-center ${h.sortable ? 'cursor-pointer' : ''}`}>{h.name} {getSortIcon(h.key)}</div>))}
                 data={processedItems}
-                renderRow={(item, index) => (
-                    <tr key={item._id} className="transition-colors hover:bg-slate-800/60" style={{ animation: 'tableRowFadeIn 0.5s ease-out forwards', animationDelay: `${index * 0.03}s`, opacity: 0 }}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{item.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{item.artisanID?.name || 'N/A'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{item.quantity}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{item.status}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium"><div className='flex gap-1'>
-                            <Link to={`/items/${item._id}`}><Button variant="ghost" className="p-2 h-auto" aria-label="View Details"><Eye className="h-4 w-4"/></Button></Link>
-                            <Button variant="ghost" onClick={() => handleOpenModal(item)} className="p-2 h-auto" aria-label="Edit Item"><Edit className="h-4 w-4"/></Button>
-                            <Button variant="ghost" onClick={() => handleDelete(item._id)} className="p-2 h-auto text-red-500 hover:bg-red-500/10 hover:text-red-400" aria-label="Delete Item"><Trash2 className="h-4 w-4"/></Button>
-                        </div></td>
-                    </tr>
-                )}
+                renderRow={renderRow}
             />
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={currentItem ? 'Edit Item' : 'Add New Item'}>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -158,7 +161,10 @@ const HandcraftedItems = () => {
                     <FormInputGroup label="Price (in ₹)" type="number" step="0.01" registration={register('price')} error={errors.price} />
                     <FormInputGroup label="Quantity" type="number" registration={register('quantity')} error={errors.quantity} />
                     <FormSelectGroup label="Status" registration={register('status')} options={['Available', 'Sold', 'Draft'].map(v => ({ _id: v, name: v }))} error={errors.status} />
-                    <div className="flex justify-end gap-2 pt-4"><Button type="button" variant="secondary" onClick={handleCloseModal} disabled={isSubmitting}>Cancel</Button><Button type="submit" loading={isSubmitting}>{currentItem ? 'Save Changes' : 'Create Item'}</Button></div>
+                    <div className="flex justify-end gap-2 pt-4">
+                        <Button type="button" variant="secondary" onClick={handleCloseModal} disabled={isSubmitting}>Cancel</Button>
+                        <Button type="submit" loading={isSubmitting}>{currentItem ? 'Save Changes' : 'Create Item'}</Button>
+                    </div>
                 </form>
             </Modal>
         </div>
