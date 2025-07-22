@@ -2,11 +2,13 @@
 
 /* --- 1. THEME DEFINITION --- */
 @theme {
+  /* Primary accent colors remain the same */
   --color-primary: var(--color-sky-500);
   --color-primary-hover: var(--color-sky-600);
   --color-primary-focus: var(--color-sky-400);
   --color-sky-500-rgb: 14, 165, 233;
 
+  /* Theme-aware variables */
   --color-background: var(--theme-background);
   --color-background-offset: var(--theme-background-offset);
   --color-text-primary: var(--theme-text-primary);
@@ -26,7 +28,6 @@
 /* --- 2. THEME VARIABLES & ANIMATIONS --- */
 @layer base {
   /* --- DARK MODE (Default) --- */
-  /* Modern greyish dark theme with subtle transparency */
   :root {
     --theme-background: var(--color-slate-950);
     --theme-background-offset: var(--color-slate-900);
@@ -34,58 +35,39 @@
     --theme-text-secondary: var(--color-slate-400);
     --theme-border: var(--color-slate-800);
     --theme-ring: var(--color-slate-300);
-    /* Card is semi-transparent dark grey */
-    --theme-card: 224 71.4% 11%; /* hsl(224, 71.4%, 11%) - slate-900 */
+    --theme-card: var(--color-slate-900);
     --theme-card-foreground: var(--color-slate-50);
   }
 
   /* --- LIGHT MODE Overrides --- */
-  /* Clean, professional light theme */
   .light {
     --theme-background: var(--color-slate-100);
-    --theme-background-offset: var(--color-slate-200); /* Slightly darker for offsets */
-    --theme-text-primary: var(--color-slate-800);     /* Dark grey for readability */
-    --theme-text-secondary: var(--color-slate-500);   /* Lighter grey for secondary info */
-    --theme-border: var(--color-slate-200);           /* Light grey border for definition */
+    --theme-background-offset: var(--color-white);
+    --theme-text-primary: var(--color-slate-800);
+    --theme-text-secondary: var(--color-slate-500);
+    --theme-border: var(--color-slate-200);
     --theme-ring: var(--color-slate-900);
-    /* Card is mostly opaque white */
-    --theme-card: 0 0% 100%; /* hsl(0, 0%, 100%) - white */
+    --theme-card: var(--color-white);
     --theme-card-foreground: var(--color-slate-800);
   }
 
-  /* Apply base styles */
   body { 
     @apply antialiased bg-background text-text-primary transition-colors duration-300;
   }
 }
 
-/* Keyframe animations remain unchanged */
+/* Keyframe animations */
 @keyframes contentFadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes tableRowFadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { opacity: 1; } }
 
-html, body {
-  height: 100%;
-}
+html, body { height: 100%; }
 
 /* --- 3. UPDATED CUSTOM UTILITIES --- */
-@utility text-glow {
-  @apply bg-gradient-to-br from-text-primary to-text-secondary/70 bg-clip-text text-transparent;
-}
-
-@utility btn { 
-  @apply relative inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 px-4 py-2; 
-}
-@utility btn-primary { 
-  @apply btn bg-primary text-white shadow-lg shadow-sky-500/30 hover:bg-primary-hover hover:-translate-y-px; 
-}
-@utility btn-secondary { 
-  @apply btn bg-background-offset text-text-primary border border-border hover:bg-border;
-}
-@utility btn-ghost { 
-  @apply btn hover:bg-background-offset hover:text-text-primary;
-}
-@utility btn-destructive { 
-  @apply btn bg-destructive text-destructive-foreground shadow-lg shadow-red-500/30 hover:bg-destructive-hover hover:-translate-y-px; 
-}
+@utility text-glow { @apply bg-gradient-to-br from-text-primary to-text-secondary/70 bg-clip-text text-transparent; }
+@utility btn { @apply relative inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 px-4 py-2; }
+@utility btn-primary { @apply btn bg-primary text-white shadow-lg shadow-sky-500/30 hover:bg-primary-hover hover:-translate-y-px; }
+@utility btn-secondary { @apply btn bg-background-offset text-text-primary border border-border hover:bg-border; }
+@utility btn-ghost { @apply btn hover:bg-background-offset hover:text-text-primary; }
+@utility btn-destructive { @apply btn bg-destructive text-destructive-foreground shadow-lg shadow-red-500/30 hover:bg-destructive-hover hover:-translate-y-px; }

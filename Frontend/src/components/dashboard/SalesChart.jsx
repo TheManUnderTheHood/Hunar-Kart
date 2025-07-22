@@ -2,65 +2,44 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import Card from '../ui/Card';
 
 const SalesChart = ({ data }) => {
-    
-    // Process the sales data to be chart-friendly
     const chartData = data.reduce((acc, sale) => {
         const month = new Date(sale.date).toLocaleString('default', { month: 'short', year: 'numeric' });
-        
         const existingMonth = acc.find(item => item.name === month);
-        
         if (existingMonth) {
             existingMonth.Revenue += sale.totalRevenue;
         } else {
-            acc.push({
-                name: month,
-                Revenue: sale.totalRevenue,
-            });
+            acc.push({ name: month, Revenue: sale.totalRevenue });
         }
         return acc;
     }, []);
-    
-    // Optional: Sort data by date for a chronological chart
-    chartData.sort((a, b) => {
-        const dateA = new Date(`01 ${a.name}`);
-        const dateB = new Date(`01 ${b.name}`);
-        return dateA - dateB;
-    });
+    chartData.sort((a, b) => new Date(`01 ${a.name}`) - new Date(`01 ${b.name}`));
 
     return (
         <Card className="col-span-1 lg:col-span-3">
-            <h2 className="text-xl font-semibold text-white mb-4">Monthly Revenue (₹)</h2>
+            <h2 className="text-xl font-semibold text-text-primary mb-4">Monthly Revenue (₹)</h2>
             {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                        data={chartData}
-                        margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
-                    >
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-slate-700)" />
-                        <XAxis dataKey="name" stroke="var(--color-slate-400)" fontSize={12} />
-                        <YAxis 
-                            stroke="var(--color-slate-400)" 
-                            fontSize={12} 
-                            tickFormatter={(value) => `₹${new Intl.NumberFormat('en-IN').format(value)}`} 
-                        />
+                    <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border)" />
+                        <XAxis dataKey="name" stroke="var(--theme-text-secondary)" fontSize={12} />
+                        <YAxis stroke="var(--theme-text-secondary)" fontSize={12} tickFormatter={(value) => `₹${new Intl.NumberFormat('en-IN').format(value)}`} />
                         <Tooltip
-                            cursor={{ fill: 'rgba(var(--color-sky-500-rgb), 0.1)' }}
+                            cursor={{ fill: 'hsla(var(--color-primary), 0.1)' }}
                             contentStyle={{
-                                background: 'var(--color-slate-800)',
-                                border: '1px solid var(--color-slate-700)',
+                                background: 'var(--theme-background-offset)',
+                                border: '1px solid var(--theme-border)',
                                 borderRadius: '0.5rem',
+                                color: 'var(--theme-text-primary)',
                             }}
-                            labelStyle={{ color: 'var(--color-slate-300)' }}
+                            labelStyle={{ color: 'var(--theme-text-secondary)' }}
                             formatter={(value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(value)}
                         />
-                        <Legend wrapperStyle={{fontSize: "14px"}} />
+                        <Legend wrapperStyle={{fontSize: "14px", color: "var(--theme-text-secondary)"}} />
                         <Bar dataKey="Revenue" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                 </ResponsiveContainer>
             ) : (
-                <div className="flex items-center justify-center h-[300px] text-slate-400">
-                    Not enough data to display chart.
-                </div>
+                <div className="flex items-center justify-center h-[300px] text-text-secondary">Not enough data to display chart.</div>
             )}
         </Card>
     );

@@ -2,7 +2,7 @@ const Card = ({ children, className = '' }) => {
   return (
     <div 
       className={`
-        relative rounded-xl bg-card/90 dark:bg-card/80 p-6 shadow-xl backdrop-blur-sm
+        relative rounded-xl bg-card p-6 shadow-lg
         border border-border
         ${className}
       `}
