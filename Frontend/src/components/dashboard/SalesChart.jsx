@@ -1,35 +1,32 @@
-import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Card from '../ui/Card';
-import useTheme from '../../hooks/useTheme'; // Import the theme hook
+import useTheme from '../../hooks/useTheme'; // We still need this to know the current theme
 
 const SalesChart = ({ data }) => {
-    const { theme } = useTheme(); // Get the current theme ('light' or 'dark')
-    const [chartColors, setChartColors] = useState({
-        grid: '#334155',   // slate-700
-        text: '#94a3b8',   // slate-400
-        fill: '#0ea5e9',   // sky-500
-        background: '#1e293b', // slate-800
+    const { theme } = useTheme(); // Get the current theme: 'light' or 'dark'
+
+    // --- NEW: Define explicit color schemes in JavaScript ---
+    // These hex codes match the slate colors from your tailwind.css for perfect consistency.
+    const lightModeColors = {
+        grid: '#e2e8f0',        // slate-200
+        text: '#64748b',        // slate-500
+        fill: '#0ea5e9',        // sky-500
+        background: '#ffffff',  // white
+        textPrimary: '#1e293b', // slate-800
+    };
+
+    const darkModeColors = {
+        grid: '#334155',        // slate-700
+        text: '#94a3b8',        // slate-400
+        fill: '#0ea5e9',        // sky-500
+        background: '#1e293b',  // slate-800
         textPrimary: '#f8fafc', // slate-50
-    });
+    };
 
-    // This effect runs whenever the theme changes
-    useEffect(() => {
-        // We get the root element (:root or .light) to read its computed CSS variables
-        const rootStyles = getComputedStyle(document.documentElement);
-        
-        // Read the actual color values from the CSS variables we defined
-        const newColors = {
-            grid: rootStyles.getPropertyValue('--theme-border').trim(),
-            text: rootStyles.getPropertyValue('--theme-text-secondary').trim(),
-            fill: rootStyles.getPropertyValue('--color-primary').trim(),
-            background: rootStyles.getPropertyValue('--theme-background-offset').trim(),
-            textPrimary: rootStyles.getPropertyValue('--theme-text-primary').trim()
-        };
-
-        setChartColors(newColors);
-    }, [theme]); // Re-run this effect when the theme changes
+    // Select the correct color scheme based on the current theme
+    const currentChartColors = theme === 'light' ? lightModeColors : darkModeColors;
     
+    // Data processing logic remains the same
     const chartData = data.reduce((acc, sale) => {
         const month = new Date(sale.date).toLocaleString('default', { month: 'short', year: 'numeric' });
         const existingMonth = acc.find(item => item.name === month);
@@ -51,27 +48,28 @@ const SalesChart = ({ data }) => {
                         data={chartData}
                         margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
                     >
-                        <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
-                        <XAxis dataKey="name" stroke={chartColors.text} fontSize={12} />
+                        {/* Apply the correct colors directly from our JS object */}
+                        <CartesianGrid strokeDasharray="3 3" stroke={currentChartColors.grid} />
+                        <XAxis dataKey="name" stroke={currentChartColors.text} fontSize={12} />
                         <YAxis 
-                            stroke={chartColors.text} 
+                            stroke={currentChartColors.text} 
                             fontSize={12} 
                             tickFormatter={(value) => `₹${new Intl.NumberFormat('en-IN').format(value)}`} 
                         />
                         <Tooltip
-                            cursor={{ fill: 'hsl(var(--color-primary) / 0.1)' }}
+                            cursor={{ fill: 'hsla(var(--color-primary), 0.1)' }}
                             contentStyle={{
-                                background: chartColors.background,
-                                border: `1px solid ${chartColors.grid}`,
+                                background: currentChartColors.background,
+                                border: `1px solid ${currentChartColors.grid}`,
                                 borderRadius: '0.5rem',
-                                color: chartColors.textPrimary,
+                                color: currentChartColors.textPrimary,
                                 boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
                             }}
-                            labelStyle={{ color: chartColors.text }}
+                            labelStyle={{ color: currentChartColors.text }}
                             formatter={(value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(value)}
                         />
-                        <Legend wrapperStyle={{fontSize: "14px", color: chartColors.text}} />
-                        <Bar dataKey="Revenue" fill={chartColors.fill} radius={[4, 4, 0, 0]} />
+                        <Legend wrapperStyle={{fontSize: "14px", color: currentChartColors.text}} />
+                        <Bar dataKey="Revenue" fill={currentChartColors.fill} radius={[4, 4, 0, 0]} />
                     </BarChart>
                 </ResponsiveContainer>
             ) : (
