@@ -148,4 +148,38 @@ const deleteArtisan = asyncHandler(async (req, res) => {
     }
 });
 
-export { createArtisan, getAllArtisans, getArtisanById, updateArtisan, deleteArtisan };
+const getArtisanSales = asyncHandler(async (req, res) => {
+    const { artisanId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(artisanId)) {
+        throw new ApiError(400, "Invalid Artisan ID");
+    }
+
+    const sales = await Sale.find({ artisanID: artisanId })
+        .populate("itemID", "name price")
+        .sort({ date: -1 }); // Sort by most recent sale
+
+    if (!sales) {
+        // Even if no sales, return an empty array, not an error
+        return res.status(200).json(new ApiResponse(200, [], "No sales found for this artisan."));
+    }
+
+    // Calculate total revenue from the fetched sales
+    const totalRevenue = sales.reduce((acc, sale) => acc + sale.totalRevenue, 0);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200, 
+            { count: sales.length, totalRevenue, sales }, 
+            "Artisan sales data fetched successfully"
+        )
+    );
+});
+
+export { 
+    createArtisan, 
+    getAllArtisans, 
+    getArtisanById, 
+    updateArtisan, 
+    deleteArtisan,
+    getArtisanSales 
+};

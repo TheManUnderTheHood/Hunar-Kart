@@ -4,7 +4,8 @@ import {
     getAllArtisans,
     getArtisanById,
     updateArtisan,
-    deleteArtisan
+    deleteArtisan,
+    getArtisanSales
 } from "../controllers/artisan.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -17,6 +18,8 @@ router.use(verifyJWT);
 router.route("/")
     .post(createArtisan)
     .get(getAllArtisans);
+
+router.route("/:artisanId/sales").get(getArtisanSales);
 
 // Route for /api/v1/artisans/:artisanId
 router.route("/:artisanId")
