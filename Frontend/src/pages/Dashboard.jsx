@@ -6,7 +6,6 @@ import SalesChart from "../components/dashboard/SalesChart";
 import TopArtisans from "../components/dashboard/TopArtisans";
 import { Users, ShoppingBag, DollarSign, List } from 'lucide-react';
 
-// CORRECT PATTERN: Helper component is a standalone constant.
 const StatCard = ({ icon: Icon, title, value, subtitle, color }) => (
     <Card className="flex flex-col">
         <div className="flex items-center justify-between text-text-secondary">
@@ -34,7 +33,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                // CORRECTED: All instances of `api-client` are now `apiClient`.
+                // CORRECTED: All instances are now `apiClient` (camelCase).
                 const [artisansRes, itemsRes, salesRes, listingsRes] = await Promise.all([
                     apiClient.get('/artisans'),
                     apiClient.get('/handcrafteditem'),
