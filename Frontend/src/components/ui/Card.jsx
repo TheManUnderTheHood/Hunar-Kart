@@ -2,7 +2,7 @@ const Card = ({ children, className = '' }) => {
   return (
     <div 
       className={`
-        relative rounded-xl bg-card p-6 shadow-lg
+        relative rounded-xl bg-card p-6 shadow-lg dark:shadow-black/20
         border border-border
         ${className}
       `}
@@ -11,5 +11,4 @@ const Card = ({ children, className = '' }) => {
     </div>
   );
 };
-
 export default Card;

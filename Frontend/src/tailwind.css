@@ -2,13 +2,10 @@
 
 /* --- 1. THEME DEFINITION --- */
 @theme {
-  /* Primary accent colors remain the same */
   --color-primary: var(--color-sky-500);
   --color-primary-hover: var(--color-sky-600);
   --color-primary-focus: var(--color-sky-400);
-  --color-sky-500-rgb: 14, 165, 233;
 
-  /* Theme-aware variables */
   --color-background: var(--theme-background);
   --color-background-offset: var(--theme-background-offset);
   --color-text-primary: var(--theme-text-primary);
@@ -29,13 +26,13 @@
 @layer base {
   /* --- DARK MODE (Default) --- */
   :root {
-    --theme-background: var(--color-slate-950);
-    --theme-background-offset: var(--color-slate-900);
+    --theme-background: var(--color-slate-900);         /* Main background */
+    --theme-background-offset: var(--color-slate-800);  /* For sidebars, headers */
     --theme-text-primary: var(--color-slate-50);
     --theme-text-secondary: var(--color-slate-400);
-    --theme-border: var(--color-slate-800);
+    --theme-border: var(--color-slate-700);             /* Darker border for contrast */
     --theme-ring: var(--color-slate-300);
-    --theme-card: var(--color-slate-900);
+    --theme-card: var(--color-slate-800);               /* Lighter cards for separation */
     --theme-card-foreground: var(--color-slate-50);
   }
 
@@ -56,7 +53,7 @@
   }
 }
 
-/* Keyframe animations */
+/* Keyframe animations remain unchanged */
 @keyframes contentFadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes tableRowFadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

@@ -6,7 +6,7 @@ const navItems = [ { to: "/", icon: LayoutDashboard, label: "Dashboard" }, { to:
 const adminNavItems = [ { to: "/operators", icon: UserCog, label: "Operators" }];
 
 const SidebarNavLink = ({ to, icon: Icon, label }) => (
-    <NavLink to={to} className={({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary transition-all hover:text-text-primary hover:bg-background-offset ${isActive ? 'bg-primary/10 text-primary font-semibold' : '' }`}>
+    <NavLink to={to} className={({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary transition-all hover:text-text-primary hover:bg-background-offset ${isActive ? 'bg-primary/20 text-primary font-semibold' : '' }`}>
         <Icon className="h-5 w-5" />
         {label}
     </NavLink>
