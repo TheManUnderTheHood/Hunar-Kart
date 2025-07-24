@@ -52,9 +52,7 @@
     @apply antialiased bg-background text-text-primary transition-colors duration-300;
     
   }
-  .body-no-scroll {
-    overflow: hidden !important;
-  }
+  
 }
 
 /* Keyframe animations remain unchanged */
