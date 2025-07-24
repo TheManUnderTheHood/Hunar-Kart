@@ -69,11 +69,11 @@ const Login = () => {
 
             {/* Enhanced title */}
             <h2 className="text-3xl font-bold bg-gradient-to-r from-text-primary via-primary to-text-primary bg-clip-text text-transparent mb-2">
-              Welcome Back
+              Welcome
             </h2>
             <p className="text-text-secondary flex items-center justify-center gap-2">
               <Shield className="h-4 w-4" />
-              Sign in to HunarKart Admin
+              Sign in to Hunar-Kart Portal
             </p>
           </div>
 

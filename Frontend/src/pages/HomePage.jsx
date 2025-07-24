@@ -187,9 +187,6 @@ const TopArtisansSection = () => {
                                     <h3 className="text-xl font-semibold text-text-primary group-hover:text-primary transition-colors duration-300">
                                         {artisan.name}
                                     </h3>
-                                    <p className="text-sm text-primary font-medium bg-primary/10 rounded-full px-3 py-1 inline-block">
-                                        {artisan.craft || 'Diverse Crafts'}
-                                    </p>
                                     <p className="text-sm text-text-secondary flex items-center justify-center gap-1" title={artisan.address}>
                                         <Globe className="h-3 w-3" />
                                         From {artisan.address.split(',').pop().trim()}
