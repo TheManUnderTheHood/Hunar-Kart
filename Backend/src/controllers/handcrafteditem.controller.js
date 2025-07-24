@@ -100,15 +100,34 @@ const deleteHandcraftedItem = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid Handcrafted Item ID format");
     }
 
-    const item = await HandcraftedItem.findByIdAndDelete(itemId);
+    const session = await mongoose.startSession();
 
-    if (!item) {
-        throw new ApiError(404, "Handcrafted item not found");
+    try {
+        session.startTransaction();
+
+        const item = await HandcraftedItem.findById(itemId).session(session);
+        if (!item) {
+            throw new ApiError(404, "Handcrafted item not found");
+        }
+
+        await PlatformListing.deleteMany({ itemID: itemId }).session(session);
+
+        await Sale.deleteMany({ itemID: itemId }).session(session);
+
+        await HandcraftedItem.findByIdAndDelete(itemId).session(session);
+        
+        await session.commitTransaction();
+
+        return res.status(200).json(
+            new ApiResponse(200, {}, "Handcrafted item and all associated data deleted successfully")
+        );
+
+    } catch (error) {
+        await session.abortTransaction();
+        throw new ApiError(error.statusCode || 500, error.message || "Failed to delete the handcrafted item.");
+    } finally {
+        session.endSession();
     }
-
-    return res.status(200).json(
-        new ApiResponse(200, {}, "Handcrafted item deleted successfully")
-    );
 });
 
 export { 

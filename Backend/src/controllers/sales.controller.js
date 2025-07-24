@@ -66,15 +66,38 @@ const deleteSale = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid Sale ID format");
     }
 
-    const sale = await Sale.findByIdAndDelete(saleId);
+    const session = await mongoose.startSession();
 
-    if (!sale) {
-        throw new ApiError(404, "Sale record not found");
+    try {
+        session.startTransaction();
+
+        const sale = await Sale.findById(saleId).session(session);
+        if (!sale) {
+            throw new ApiError(404, "Sale record not found");
+        }
+
+        await HandcraftedItem.findByIdAndUpdate(
+            sale.itemID,
+            {
+                $inc: { quantity: sale.quantitySold }, // Increment quantity by the amount sold
+                $set: { status: 'Available' }         // Set status back to 'Available'
+            },
+            { session, new: true } // Use the transaction session
+        );
+
+        await Sale.findByIdAndDelete(saleId, { session });
+
+        await session.commitTransaction();
+
+        return res.status(200).json(
+            new ApiResponse(200, {}, "Sale record deleted and item stock restored successfully")
+        );
+    } catch (error) {
+        await session.abortTransaction();
+        throw new ApiError(error.statusCode || 500, error.message || "Failed to delete sale record.");
+    } finally {
+        session.endSession();
     }
-   
-    return res.status(200).json(
-        new ApiResponse(200, {}, "Sale record deleted successfully")
-    );
 });
 
 export { 

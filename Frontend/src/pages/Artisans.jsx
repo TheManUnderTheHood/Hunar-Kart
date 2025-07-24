@@ -81,17 +81,16 @@ const Artisans = () => {
     const onSubmit = async (data) => {
         const formData = new FormData();
         Object.keys(data).forEach(key => {
-            // Append avatar file if it exists and is a file list
             if (key === 'avatar' && data.avatar && data.avatar.length > 0) {
                 formData.append('avatar', data.avatar[0]);
-            } else if (key !== 'avatar') {
+            } else if (key !== 'avatar' && data[key] !== null) {
                 formData.append(key, data[key]);
             }
         });
 
         const promise = currentArtisan
-            ? apiClient.patch(`/artisans/${currentArtisan._id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-            : apiClient.post('/artisans', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            ? apiClient.patch(`/artisans/${currentArtisan._id}`, formData)
+            : apiClient.post('/artisans', formData);
 
         await toast.promise(promise, {
             loading: currentArtisan ? 'Updating artisan...' : 'Creating artisan...',
