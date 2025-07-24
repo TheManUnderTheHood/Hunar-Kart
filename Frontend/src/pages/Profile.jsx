@@ -9,7 +9,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import FormError from '../components/ui/FormError';
-import { User, Edit2, Camera, Shield, Mail, Phone, UserCheck, Sparkles, Crown } from 'lucide-react';
+import { User, Edit2, Camera, Mail, Phone, UserCheck, Crown } from 'lucide-react';
 
 const profileSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,7 +21,6 @@ const Profile = () => {
     const [avatarFile, setAvatarFile] = useState(null);
     const [previewAvatar, setPreviewAvatar] = useState(user?.avatar || null);
     const [isAvatarSubmitting, setIsAvatarSubmitting] = useState(false);
-    const [activeTab, setActiveTab] = useState('account');
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(profileSchema),
@@ -59,11 +58,6 @@ const Profile = () => {
         });
         setIsAvatarSubmitting(false);
     };
-
-    const tabs = [
-        { id: 'account', label: 'Account Details', icon: UserCheck },
-        { id: 'security', label: 'Security', icon: Shield },
-    ];
 
     return (
         <div className="space-y-8">
@@ -143,7 +137,7 @@ const Profile = () => {
                                         {user?.name || 'User Name'}
                                     </h3>
                                     <p className="text-sm text-text-secondary flex items-center justify-center gap-2">
-                                        <Shield className="h-4 w-4" />
+                                        <UserCheck className="h-4 w-4" />
                                         {user?.role || 'Member'}
                                     </p>
                                 </div>
@@ -164,124 +158,79 @@ const Profile = () => {
 
                 {/* Enhanced Main Content */}
                 <div className="lg:col-span-2 space-y-6">
-                    {/* Enhanced Tab Navigation */}
-                    <div className="flex space-x-1 bg-background-offset/50 p-1 rounded-xl">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
-                                    activeTab === tab.id
-                                        ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                                        : 'text-text-secondary hover:text-text-primary hover:bg-background-offset'
-                                }`}
-                            >
-                                <tab.icon className="h-4 w-4" />
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Account Details Tab */}
-                    {activeTab === 'account' && (
-                        <Card className="relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <UserCheck className="h-6 w-6 text-primary" />
-                                    <div>
-                                        <h2 className="text-xl font-semibold text-text-primary">Account Details</h2>
-                                        <p className="text-sm text-text-secondary">Update your personal information</p>
-                                    </div>
+                    {/* Account Details Section */}
+                    <Card className="relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-6">
+                                <UserCheck className="h-6 w-6 text-primary" />
+                                <div>
+                                    <h2 className="text-xl font-semibold text-text-primary">Account Details</h2>
+                                    <p className="text-sm text-text-secondary">Update your personal information</p>
                                 </div>
+                            </div>
 
-                                <form onSubmit={handleSubmit(onDetailsSubmit)} className="space-y-6">
-                                    {/* Enhanced Email Field */}
-                                    <div className="space-y-2">
-                                        <label className="flex items-center gap-2 text-sm font-medium text-text-secondary">
-                                            <Mail className="h-4 w-4" />
-                                            Email Address
-                                        </label>
-                                        <div className="relative">
-                                            <Input 
-                                                type="email" 
-                                                value={user?.email || ''} 
-                                                disabled 
-                                                className="bg-background-offset/50 cursor-not-allowed"
-                                            />
-                                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                                <Shield className="h-4 w-4 text-text-secondary" />
-                                            </div>
+                            <form onSubmit={handleSubmit(onDetailsSubmit)} className="space-y-6">
+                                {/* Enhanced Email Field */}
+                                <div className="space-y-2">
+                                    <label className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                        <Mail className="h-4 w-4" />
+                                        Email Address
+                                    </label>
+                                    <div className="relative">
+                                        <Input 
+                                            type="email" 
+                                            value={user?.email || ''} 
+                                            disabled 
+                                            className="bg-background-offset/50 cursor-not-allowed"
+                                        />
+                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                            <UserCheck className="h-4 w-4 text-text-secondary" />
                                         </div>
-                                        <p className="text-xs text-text-secondary/70">Email cannot be changed for security reasons</p>
                                     </div>
-
-                                    {/* Enhanced Name Field */}
-                                    <div className="space-y-2">
-                                        <label className="flex items-center gap-2 text-sm font-medium text-text-secondary">
-                                            <User className="h-4 w-4" />
-                                            Full Name
-                                        </label>
-                                        <Input 
-                                            {...register('name')} 
-                                            className="transition-all duration-200 focus:shadow-lg focus:shadow-primary/20"
-                                        />
-                                        <FormError message={errors.name?.message}/>
-                                    </div>
-
-                                    {/* Enhanced Contact Field */}
-                                    <div className="space-y-2">
-                                        <label className="flex items-center gap-2 text-sm font-medium text-text-secondary">
-                                            <Phone className="h-4 w-4" />
-                                            Contact Number
-                                        </label>
-                                        <Input 
-                                            {...register('contactNumber')} 
-                                            className="transition-all duration-200 focus:shadow-lg focus:shadow-primary/20"
-                                        />
-                                        <FormError message={errors.contactNumber?.message}/>
-                                    </div>
-
-                                    {/* Enhanced Submit Button */}
-                                    <div className="flex justify-end pt-4 border-t border-border/30">
-                                        <Button 
-                                            type="submit" 
-                                            loading={isSubmitting}
-                                            className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
-                                        >
-                                            {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
-                                        </Button>
-                                    </div>
-                                </form>
-                            </div>
-                        </Card>
-                    )}
-
-                    {/* Security Tab */}
-                    {activeTab === 'security' && (
-                        <Card className="relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            
-                            <div className="relative z-10 text-center py-12">
-                                <div className="flex flex-col items-center gap-4">
-                                    <div className="p-4 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full">
-                                        <Shield className="h-8 w-8 text-primary" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-semibold text-text-primary mb-2">Security Settings</h3>
-                                        <p className="text-text-secondary">
-                                            Advanced security features will be available soon
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-text-secondary/70 mt-4">
-                                        <Sparkles className="h-4 w-4" />
-                                        <span>Coming in the next update</span>
-                                    </div>
+                                    <p className="text-xs text-text-secondary/70">Email cannot be changed for security reasons</p>
                                 </div>
-                            </div>
-                        </Card>
-                    )}
+
+                                {/* Enhanced Name Field */}
+                                <div className="space-y-2">
+                                    <label className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                        <User className="h-4 w-4" />
+                                        Full Name
+                                    </label>
+                                    <Input 
+                                        {...register('name')} 
+                                        className="transition-all duration-200 focus:shadow-lg focus:shadow-primary/20"
+                                    />
+                                    <FormError message={errors.name?.message}/>
+                                </div>
+
+                                {/* Enhanced Contact Field */}
+                                <div className="space-y-2">
+                                    <label className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                        <Phone className="h-4 w-4" />
+                                        Contact Number
+                                    </label>
+                                    <Input 
+                                        {...register('contactNumber')} 
+                                        className="transition-all duration-200 focus:shadow-lg focus:shadow-primary/20"
+                                    />
+                                    <FormError message={errors.contactNumber?.message}/>
+                                </div>
+
+                                {/* Enhanced Submit Button */}
+                                <div className="flex justify-end pt-4 border-t border-border/30">
+                                    <Button 
+                                        type="submit" 
+                                        loading={isSubmitting}
+                                        className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                                    >
+                                        {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+                    </Card>
                 </div>
             </div>
         </div>
