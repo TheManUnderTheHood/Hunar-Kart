@@ -8,7 +8,7 @@ import {
     getArtisanSales
 } from "../controllers/artisan.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { upload } from '../utils/cloudinary.js';
+import { upload } from '../middlewares/multer.middleware.js';
 
 const router = Router();
 
