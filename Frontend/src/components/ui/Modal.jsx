@@ -2,18 +2,24 @@ import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
-
+    
     useEffect(() => {
-        if (isOpen) {
+        // Target the main document body element
+        const body = document.body;
 
-            document.body.classList.add('overflow-hidden');
+        if (isOpen) {
+            // Add our new, more powerful class
+            body.classList.add('body-no-scroll');
         } else {
-            document.body.classList.remove('overflow-hidden');
+            // Remove the class when the modal is not open
+            body.classList.remove('body-no-scroll');
         }
+
+        // Cleanup function to ensure the class is removed if the component unmounts
         return () => {
-            document.body.classList.remove('overflow-hidden');
+            body.classList.remove('body-no-scroll');
         };
-    }, [isOpen]); 
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
