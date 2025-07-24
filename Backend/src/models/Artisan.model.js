@@ -37,7 +37,13 @@ const artisanSchema = new mongoose.Schema({
   registrationDate: { 
     type: Date, 
     default: Date.now 
-  }
+  },
+  avatar: {
+        type: String, 
+    },
+    avatarPublicId: {
+        type: String, 
+    }
 }, { timestamps: true });
 
 export const Artisan = mongoose.model('Artisan', artisanSchema);

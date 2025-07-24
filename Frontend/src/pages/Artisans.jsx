@@ -12,13 +12,14 @@ import Modal from '../components/ui/Modal';
 import Input from '../components/ui/Input';
 import FormError from '../components/ui/FormError';
 import SearchInput from '../components/ui/SearchInput';
-import { PlusCircle, Edit, Trash2, Eye, ArrowUp, ArrowDown } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Eye, ArrowUp, ArrowDown, User } from 'lucide-react';
 
 const artisanSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters long"),
     address: z.string().min(10, "A detailed address is required (min 10 characters)"),
     contactNumber: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit contact number"),
     aadhaarCardNumber: z.string().regex(/^\d{12}$/, { message: "Aadhaar must be exactly 12 digits" }).optional().or(z.literal('')),
+    avatar: z.any().optional(), // Allow avatar uploads
 });
 
 const FormInputGroup = ({ label, error, registration, ...props }) => (
@@ -39,7 +40,7 @@ const Artisans = () => {
 
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setValue } = useForm({
         resolver: zodResolver(artisanSchema),
-        defaultValues: { name: '', address: '', contactNumber: '', aadhaarCardNumber: '' }
+        defaultValues: { name: '', address: '', contactNumber: '', aadhaarCardNumber: '', avatar: null }
     });
 
     const fetchArtisans = async () => {
@@ -65,8 +66,9 @@ const Artisans = () => {
             setValue('address', artisan.address);
             setValue('contactNumber', artisan.contactNumber);
             setValue('aadhaarCardNumber', artisan.aadhaarCardNumber || '');
+            setValue('avatar', null); // Clear file input on edit
         } else {
-            reset({ name: '', address: '', contactNumber: '', aadhaarCardNumber: '' });
+            reset({ name: '', address: '', contactNumber: '', aadhaarCardNumber: '', avatar: null });
         }
         setIsModalOpen(true);
     };
@@ -77,9 +79,19 @@ const Artisans = () => {
     };
 
     const onSubmit = async (data) => {
+        const formData = new FormData();
+        Object.keys(data).forEach(key => {
+            // Append avatar file if it exists and is a file list
+            if (key === 'avatar' && data.avatar && data.avatar.length > 0) {
+                formData.append('avatar', data.avatar[0]);
+            } else if (key !== 'avatar') {
+                formData.append(key, data[key]);
+            }
+        });
+
         const promise = currentArtisan
-            ? apiClient.patch(`/artisans/${currentArtisan._id}`, data)
-            : apiClient.post('/artisans', data);
+            ? apiClient.patch(`/artisans/${currentArtisan._id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+            : apiClient.post('/artisans', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 
         await toast.promise(promise, {
             loading: currentArtisan ? 'Updating artisan...' : 'Creating artisan...',
@@ -124,10 +136,19 @@ const Artisans = () => {
         return sortConfig.direction === 'ascending' ? <ArrowUp className="h-3 w-3 ml-1"/> : <ArrowDown className="h-3 w-3 ml-1"/>;
     };
     
-    const tableHeaders = [{ name: "Name", key: "name", sortable: true }, { name: "Contact", key: "contactNumber", sortable: false }, { name: "Address", key: "address", sortable: false }, { name: "Status", key: "agreementStatus", sortable: true }, { name: "Actions", key: "actions", sortable: false }];
+    const tableHeaders = [{ name: "", key: "avatar", sortable: false }, { name: "Name", key: "name", sortable: true }, { name: "Contact", key: "contactNumber", sortable: false }, { name: "Address", key: "address", sortable: false }, { name: "Status", key: "agreementStatus", sortable: true }, { name: "Actions", key: "actions", sortable: false }];
     
     const renderArtisanRow = (artisan, index) => (
         <tr key={artisan._id} className="transition-colors hover:bg-background-offset" style={{ animation: 'tableRowFadeIn 0.5s ease-out forwards', animationDelay: `${index * 0.03}s`, opacity: 0 }}>
+            <td className="px-6 py-4">
+                {artisan.avatar ? (
+                    <img src={artisan.avatar} alt={artisan.name} className="h-10 w-10 rounded-full object-cover"/>
+                ) : (
+                    <div className="h-10 w-10 rounded-full bg-background-offset/50 flex items-center justify-center">
+                        <User className="h-5 w-5 text-text-secondary"/>
+                    </div>
+                )}
+            </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">{artisan.name}</td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{artisan.contactNumber}</td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary max-w-sm truncate">{artisan.address}</td>
@@ -164,6 +185,16 @@ const Artisans = () => {
                     <FormInputGroup label="Address" error={errors.address} registration={register('address')} />
                     <FormInputGroup label="Contact Number" error={errors.contactNumber} registration={register('contactNumber')} />
                     <FormInputGroup label="Aadhaar Card Number (Optional)" error={errors.aadhaarCardNumber} registration={register('aadhaarCardNumber')} />
+                    <div>
+                        <label className="block text-sm font-medium text-text-secondary mb-1">Avatar (Optional)</label>
+                        <Input 
+                            type="file" 
+                            accept="image/*"
+                            {...register('avatar')} 
+                            className="file:bg-background-offset file:text-text-primary file:border-0 file:rounded file:py-1.5 file:px-3 file:mr-3 hover:file:bg-border"
+                        />
+                        <FormError message={errors.avatar?.message}/>
+                    </div>
                     <div className="flex justify-end gap-2 pt-4">
                         <Button type="button" variant="secondary" onClick={handleCloseModal} disabled={isSubmitting}>Cancel</Button>
                         <Button type="submit" loading={isSubmitting}>{currentArtisan ? 'Save Changes' : 'Create Artisan'}</Button>

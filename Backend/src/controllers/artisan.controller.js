@@ -16,14 +16,24 @@ const createArtisan = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Name, address, and contact number are required");
     }
 
+    // --- AVATAR UPLOAD LOGIC ---
+    const avatarPath = req.file?.path;
+    const avatarPublicId = req.file?.filename; // The filename is the public_id from multer-storage-cloudinary
+
     const artisan = await Artisan.create({
         name,
         address,
         contactNumber,
-        aadhaarCardNumber
+        aadhaarCardNumber,
+        avatar: avatarPath,
+        avatarPublicId: avatarPublicId
     });
 
     if (!artisan) {
+        // If artisan creation fails, remove the uploaded file from Cloudinary
+        if (avatarPublicId) {
+            await removeFromCloudinary(avatarPublicId);
+        }
         throw new ApiError(500, "Failed to create the artisan");
     }
 
@@ -33,7 +43,8 @@ const createArtisan = asyncHandler(async (req, res) => {
 });
 
 const getAllArtisans = asyncHandler(async (req, res) => {
-    const artisans = await Artisan.find({});
+    // Added sorting by creation date to show newest first
+    const artisans = await Artisan.find({}).sort({ createdAt: -1 });
 
     return res.status(200).json(
         new ApiResponse(200, { count: artisans.length, artisans: artisans }, "Artisans retrieved successfully")
@@ -59,28 +70,46 @@ const getArtisanById = asyncHandler(async (req, res) => {
 });
 
 const updateArtisan = asyncHandler(async (req, res) => {
-    const { name, address, contactNumber, agreementStatus } = req.body;
+    const { name, address, contactNumber, aadhaarCardNumber } = req.body;
     const { artisanId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(artisanId)) {
         throw new ApiError(400, "Invalid Artisan ID");
     }
 
+    // Find the existing artisan to get old avatar info
+    const existingArtisan = await Artisan.findById(artisanId);
+    if (!existingArtisan) {
+        throw new ApiError(404, "Artisan not found");
+    }
+
+    const updateData = {
+        ...(name && { name }),
+        ...(address && { address }),
+        ...(contactNumber && { contactNumber }),
+        ...(aadhaarCardNumber && { aadhaarCardNumber }),
+    };
+
+    // --- AVATAR UPDATE LOGIC ---
+    if (req.file) {
+        // A new file is uploaded, set the new avatar path and public_id
+        updateData.avatar = req.file.path;
+        updateData.avatarPublicId = req.file.filename;
+
+        // If an old avatar existed, remove it from Cloudinary
+        if (existingArtisan.avatarPublicId) {
+            await removeFromCloudinary(existingArtisan.avatarPublicId);
+        }
+    }
+
     const artisan = await Artisan.findByIdAndUpdate(
         artisanId,
-        {
-            $set: {
-                ...(name && { name }),
-                ...(address && { address }),
-                ...(contactNumber && { contactNumber }),
-                ...(agreementStatus && { agreementStatus })
-            }
-        },
-        { new: true } 
+        { $set: updateData },
+        { new: true }
     );
 
     if (!artisan) {
-        throw new ApiError(404, "Artisan not found");
+        throw new ApiError(404, "Artisan not found during update");
     }
 
     return res.status(200).json(
@@ -104,14 +133,20 @@ const deleteArtisan = asyncHandler(async (req, res) => {
             throw new ApiError(404, "Artisan not found");
         }
 
+        // --- AVATAR DELETION LOGIC ---
+        // If an avatar exists, remove it from Cloudinary
+        if (artisan.avatarPublicId) {
+            await removeFromCloudinary(artisan.avatarPublicId);
+        }
+
+        // The rest of your existing, excellent transaction logic remains
         const agreements = await AgreementDocument.find({ artisanID: artisanId }).session(session);
         if (agreements.length > 0) {
-
             const publicIds = agreements.map(doc => doc.filePathPublicId).filter(id => id);
             if (publicIds.length > 0) {
-                await Promise.all(publicIds.forEach(id => removeFromCloudinary(id))); 
+                // Corrected the Promise.all usage
+                await Promise.all(publicIds.map(id => removeFromCloudinary(id)));
             }
-
             await AgreementDocument.deleteMany({ artisanID: artisanId }).session(session);
         }
 
@@ -119,14 +154,11 @@ const deleteArtisan = asyncHandler(async (req, res) => {
         const itemIds = items.map(item => item._id);
 
         if (itemIds.length > 0) {
-
             await PlatformListing.deleteMany({ itemID: { $in: itemIds } }).session(session);
-
             await HandcraftedItem.deleteMany({ artisanID: artisanId }).session(session);
         }
 
         await Sale.deleteMany({ artisanID: artisanId }).session(session);
-
         await Artisan.findByIdAndDelete(artisanId).session(session);
 
         await session.commitTransaction();
@@ -137,7 +169,7 @@ const deleteArtisan = asyncHandler(async (req, res) => {
 
     } catch (error) {
         await session.abortTransaction();
-
+        console.error("Artisan Deletion Error: ", error); // Added for better debugging
         throw new ApiError(
             error.statusCode || 500, 
             error.message || "An error occurred while deleting the artisan and related data."
@@ -156,14 +188,9 @@ const getArtisanSales = asyncHandler(async (req, res) => {
 
     const sales = await Sale.find({ artisanID: artisanId })
         .populate("itemID", "name price")
-        .sort({ date: -1 }); // Sort by most recent sale
+        .sort({ date: -1 });
 
-    if (!sales) {
-        // Even if no sales, return an empty array, not an error
-        return res.status(200).json(new ApiResponse(200, [], "No sales found for this artisan."));
-    }
-
-    // Calculate total revenue from the fetched sales
+    // This is correct - no need for a !sales check
     const totalRevenue = sales.reduce((acc, sale) => acc + sale.totalRevenue, 0);
 
     return res.status(200).json(

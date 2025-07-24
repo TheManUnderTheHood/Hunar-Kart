@@ -8,6 +8,7 @@ import {
     getArtisanSales
 } from "../controllers/artisan.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { upload } from '../utils/cloudinary.js';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.use(verifyJWT);
 
 // Route for /api/v1/artisans
 router.route("/")
-    .post(createArtisan)
+    .post(upload.single('avatar'), createArtisan)
     .get(getAllArtisans);
 
 router.route("/:artisanId/sales").get(getArtisanSales);
@@ -24,7 +25,7 @@ router.route("/:artisanId/sales").get(getArtisanSales);
 // Route for /api/v1/artisans/:artisanId
 router.route("/:artisanId")
     .get(getArtisanById)
-    .patch(updateArtisan)
+    .patch(upload.single('avatar'), updateArtisan)
     .delete(deleteArtisan);
 
 export default router;

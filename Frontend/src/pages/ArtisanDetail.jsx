@@ -57,8 +57,20 @@ const ArtisanDetail = () => {
             <Link to="/artisans" className="inline-flex items-center gap-2 text-primary hover:underline mb-6">
                 <ArrowLeft className="h-4 w-4" /> Back to All Artisans
             </Link>
-            <h1 className="text-4xl font-bold text-glow mb-2">{artisan.name}</h1>
-            <p className="text-text-secondary mb-8 font-mono text-xs">ID: {artisan._id}</p>
+
+            <div className="flex items-center gap-6 mb-8">
+                {artisan.avatar ? (
+                    <img src={artisan.avatar} alt={artisan.name} className="h-24 w-24 rounded-full object-cover border-4 border-primary/20 shadow-lg"/>
+                ) : (
+                    <div className="h-24 w-24 rounded-full bg-gradient-to-br from-background-offset to-background-offset/60 border-4 border-primary/20 flex items-center justify-center shadow-lg">
+                        <User className="w-12 h-12 text-text-secondary"/>
+                    </div>
+                )}
+                <div>
+                    <h1 className="text-4xl font-bold text-glow mb-2">{artisan.name}</h1>
+                    <p className="text-text-secondary font-mono text-xs">ID: {artisan._id}</p>
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-1 flex flex-col gap-8">
