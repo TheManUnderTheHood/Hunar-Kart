@@ -6,6 +6,7 @@ import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 
 // Pages
+import HomePage from './pages/HomePage'; // Import the new HomePage
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Artisans from './pages/Artisans';
@@ -24,11 +25,13 @@ const ProtectedRoute = () => {
   const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // Redirect them to the login page, but save the current location they were
+    // trying to go to so we can send them there after they login.
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return (
-    <div className="flex h-screen bg-slate-900/20">
+    <div className="flex h-screen bg-background">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header />
@@ -47,7 +50,7 @@ const ProtectedRoute = () => {
 const AdminRoute = () => {
     const { user } = useAuth();
     if (!user) return <Navigate to="/login" replace />;
-    if (user.role !== 'Admin') return <Navigate to="/" replace />;
+    if (user.role !== 'Admin') return <Navigate to="/dashboard" replace />; // Redirect non-admins to dashboard
     return <Outlet />;
 };
 
@@ -60,9 +63,12 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/" element={<HomePage />} /> {/* Public Homepage Route */}
       <Route path="/login" element={<Login />} />
+      
+      {/* Protected Routes for Logged-in Users */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/artisans" element={<Artisans />} />
         <Route path="/artisans/:artisanId" element={<ArtisanDetail />} />
         <Route path="/items" element={<HandcraftedItems />} />
@@ -71,10 +77,13 @@ function App() {
         <Route path="/sales" element={<Sales />} />
         <Route path="/agreements" element={<AgreementDocuments />} />
         <Route path="/profile" element={<Profile />} />
+        
+        {/* Protected Admin-only Routes */}
         <Route element={<AdminRoute />}>
             <Route path="/operators" element={<Operators />} />
         </Route>
       </Route>
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

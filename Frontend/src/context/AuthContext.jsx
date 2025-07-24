@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
             if (response.data && response.data.success) {
                 setUser(response.data.data.user);
                 setIsAuthenticated(true);
-                navigate('/');
+                navigate('/dashboard'); // <-- UPDATED REDIRECT
             }
             return response.data;
         } catch (error) {
