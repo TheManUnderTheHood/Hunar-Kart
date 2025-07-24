@@ -1,5 +1,5 @@
 import { Sun, Moon } from 'lucide-react';
-import useTheme from '../../hooks/useTheme'; // We will create this hook next
+import useTheme from '../../hooks/useTheme'; 
 import Button from './Button';
 
 const ThemeToggle = () => {
