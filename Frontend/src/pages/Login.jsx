@@ -130,13 +130,6 @@ const Login = () => {
               >
                 {isSubmitting ? "Signing you in..." : "Sign In"}
               </Button>
-
-              {/* Additional links */}
-              <div className="text-center">
-                <a href="#" className="text-sm text-text-secondary hover:text-primary transition-colors duration-200">
-                  Forgot your password?
-                </a>
-              </div>
             </div>
           </form>
 
