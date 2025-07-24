@@ -4,16 +4,53 @@ import Card from "../components/ui/Card";
 import Spinner from "../components/ui/Spinner";
 import SalesChart from "../components/dashboard/SalesChart";
 import TopArtisans from "../components/dashboard/TopArtisans";
-import { Users, ShoppingBag, DollarSign, List } from 'lucide-react';
+import { Users, ShoppingBag, DollarSign, List, TrendingUp, ArrowUpRight, Sparkles } from 'lucide-react';
 
-const StatCard = ({ icon: Icon, title, value, subtitle, color }) => (
-    <Card className="flex flex-col">
-        <div className="flex items-center justify-between text-text-secondary">
-            <h3 className="font-semibold">{title}</h3>
-            <Icon className={`h-6 w-6 ${color}`} />
+const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
+    <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:scale-[1.02] hover:-translate-y-1">
+        {/* Animated background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        
+        {/* Content */}
+        <div className="relative z-10 flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between text-text-secondary mb-4">
+                <h3 className="font-semibold text-sm uppercase tracking-wide">{title}</h3>
+                <div className={`p-2 rounded-xl bg-gradient-to-br ${color} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
+                    <Icon className="h-5 w-5 text-white" />
+                </div>
+            </div>
+
+            {/* Main value */}
+            <div className="flex items-baseline gap-2 mb-2">
+                <p className="text-3xl font-bold text-text-primary group-hover:text-primary transition-colors duration-300">
+                    {typeof value === 'number' ? value.toLocaleString() : value}
+                </p>
+                {trend && (
+                    <div className="flex items-center gap-1 text-green-500">
+                        <TrendingUp className="h-4 w-4" />
+                        <span className="text-sm font-medium">{trend}</span>
+                    </div>
+                )}
+            </div>
+
+            {/* Subtitle */}
+            {subtitle && (
+                <p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors duration-300">
+                    {subtitle}
+                </p>
+            )}
+
+            {/* Decorative element */}
+            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
+                <ArrowUpRight className="h-8 w-8 text-primary" />
+            </div>
         </div>
-        <p className="mt-4 text-4xl font-bold text-text-primary">{value}</p>
-        {subtitle && <p className="text-sm text-text-secondary">{subtitle}</p>}
+
+        {/* Animated border */}
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-transparent to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+            <div className="absolute inset-[1px] rounded-lg bg-background"></div>
+        </div>
     </Card>
 );
 
@@ -27,13 +64,21 @@ const Dashboard = () => {
     const formatToINR = (num) => new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency: 'INR',
-        minimumFractionDigits: 2,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
     }).format(num);
+
+    // Calculate growth trends (mock data for demo)
+    const getTrendData = () => ({
+        artisans: "+12%",
+        items: "+8%", 
+        sales: "+23%",
+        listings: "+5%"
+    });
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                // CORRECTED: All instances are now `apiClient` (camelCase).
                 const [artisansRes, itemsRes, salesRes, listingsRes] = await Promise.all([
                     apiClient.get('/artisans'),
                     apiClient.get('/handcrafteditem'),
@@ -57,7 +102,6 @@ const Dashboard = () => {
             } catch (err) {
                 setError("Failed to fetch dashboard data.");
                 console.error(err);
-                // CORRECTED: Removed the stray 'p' character from this block.
             } finally {
                 setLoading(false);
             }
@@ -66,23 +110,106 @@ const Dashboard = () => {
         fetchDashboardData();
     }, []);
 
-    if (loading) return <div className="flex h-full items-center justify-center"><Spinner size="lg"/></div>;
-    if (error) return <div className="text-red-500 bg-red-500/10 p-4 rounded-md">{error}</div>;
+    if (loading) {
+        return (
+            <div className="flex h-full items-center justify-center">
+                <div className="text-center">
+                    <Spinner size="lg"/>
+                    <p className="mt-4 text-text-secondary animate-pulse">Loading dashboard...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="max-w-md mx-auto mt-8">
+                <div className="text-red-500 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950/50 dark:to-red-900/50 p-6 rounded-xl border border-red-200 dark:border-red-800">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-red-500 rounded-full">
+                            <Sparkles className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold">Oops! Something went wrong</h3>
+                            <p className="text-sm mt-1">{error}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const trends = getTrendData();
 
     return (
-        <div className="container mx-auto">
-            <h1 className="mb-8 text-3xl font-bold text-glow">Dashboard Overview</h1>
+        <div className="container mx-auto space-y-8">
+            {/* Enhanced Header */}
+            <div className="relative">
+                <div className="flex items-center gap-4 mb-2">
+                    <div className="p-3 bg-gradient-to-br from-primary to-primary/80 rounded-xl shadow-lg">
+                        <Sparkles className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-text-primary to-text-primary/70 bg-clip-text">
+                            Dashboard Overview
+                        </h1>
+                        <p className="text-text-secondary mt-1">
+                            Real-time insights into your marketplace performance
+                        </p>
+                    </div>
+                </div>
+                
+                {/* Decorative line */}
+                <div className="h-px bg-gradient-to-r from-primary/50 via-primary to-primary/50 mt-6"></div>
+            </div>
             
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-                <StatCard icon={Users} title="Total Artisans" value={stats.artisans} color="text-sky-500" />
-                <StatCard icon={ShoppingBag} title="Total Items" value={stats.items} color="text-emerald-500" />
-                <StatCard icon={DollarSign} title="Total Sales" value={stats.sales} subtitle={`Revenue: ${formatToINR(stats.revenue)}`} color="text-amber-500" />
-                <StatCard icon={List} title="Active Listings" value={stats.listings} color="text-violet-500" />
+            {/* Enhanced Stats Grid */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard 
+                    icon={Users} 
+                    title="Total Artisans" 
+                    value={stats.artisans} 
+                    trend={trends.artisans}
+                    color="from-sky-400 to-sky-600" 
+                />
+                <StatCard 
+                    icon={ShoppingBag} 
+                    title="Total Items" 
+                    value={stats.items} 
+                    trend={trends.items}
+                    color="from-emerald-400 to-emerald-600" 
+                />
+                <StatCard 
+                    icon={DollarSign} 
+                    title="Total Sales" 
+                    value={stats.sales} 
+                    subtitle={`Revenue: ${formatToINR(stats.revenue)}`}
+                    trend={trends.sales}
+                    color="from-amber-400 to-amber-600" 
+                />
+                <StatCard 
+                    icon={List} 
+                    title="Active Listings" 
+                    value={stats.listings} 
+                    trend={trends.listings}
+                    color="from-violet-400 to-violet-600" 
+                />
             </div>
 
+            {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <SalesChart data={salesData} />
-              <TopArtisans sales={salesData} artisans={artisans} />
+                <div className="lg:col-span-2">
+                    <SalesChart data={salesData} />
+                </div>
+                <div className="lg:col-span-1">
+                    <TopArtisans sales={salesData} artisans={artisans} />
+                </div>
+            </div>
+
+            {/* Floating background elements */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
             </div>
         </div>
     );
