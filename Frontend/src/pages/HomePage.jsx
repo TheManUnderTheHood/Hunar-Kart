@@ -136,7 +136,8 @@ const TopArtisansSection = () => {
     useEffect(() => {
         const fetchTopArtisans = async () => {
             try {
-                const response = await apiClient.get('/artisans?limit=4'); 
+                // Fetch a small, public list of artisans for the homepage
+                const response = await apiClient.get('/artisans?limit=8'); // Fetch a few more in case of bad data
                 setArtisans(response.data.data.artisans || []);
             } catch (err) {
                 console.error("Failed to fetch top artisans:", err);
@@ -168,7 +169,7 @@ const TopArtisansSection = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {artisans.map((artisan, index) => (
+                        {artisans.slice(0, 4).map((artisan, index) => (
                             <Card key={artisan._id} className="group overflow-hidden text-center transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:scale-105 hover:-translate-y-2 bg-gradient-to-br from-background to-background-offset border-2 border-transparent hover:border-primary/20">
                                 <div className="relative mb-4">
                                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500"></div>
