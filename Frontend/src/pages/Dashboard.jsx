@@ -4,9 +4,9 @@ import Card from "../components/ui/Card";
 import Spinner from "../components/ui/Spinner";
 import SalesChart from "../components/dashboard/SalesChart";
 import TopArtisans from "../components/dashboard/TopArtisans";
-import { Users, ShoppingBag, DollarSign, List, TrendingUp, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Users, ShoppingBag, DollarSign, List, ArrowUpRight, Sparkles } from 'lucide-react';
 
-const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
+const StatCard = ({ icon: Icon, title, value, subtitle, color }) => (
     <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:scale-[1.02] hover:-translate-y-1">
         {/* Content */}
         <div className="relative z-10 flex flex-col">
@@ -23,12 +23,6 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
                 <p className="text-4xl font-bold text-text-primary group-hover:text-primary transition-colors duration-300">
                     {typeof value === 'number' ? value.toLocaleString() : value}
                 </p>
-                {trend && (
-                    <div className="flex items-center gap-1 text-green-500">
-                        <TrendingUp className="h-4 w-4" />
-                        <span className="text-sm font-semibold">{trend}</span>
-                    </div>
-                )}
             </div>
 
             {/* Subtitle */}
@@ -57,14 +51,6 @@ const Dashboard = () => {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(num);
-
-    // Calculate growth trends (mock data for demo)
-    const getTrendData = () => ({
-        artisans: "+12%",
-        items: "+8%", 
-        sales: "+23%",
-        listings: "+5%"
-    });
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -129,8 +115,6 @@ const Dashboard = () => {
         );
     }
 
-    const trends = getTrendData();
-
     return (
         <div className="container mx-auto space-y-8">
             {/* Enhanced Header */}
@@ -159,14 +143,12 @@ const Dashboard = () => {
                     icon={Users} 
                     title="Total Artisans" 
                     value={stats.artisans} 
-                    trend={trends.artisans}
                     color="from-sky-400 to-sky-600" 
                 />
                 <StatCard 
                     icon={ShoppingBag} 
                     title="Total Items" 
                     value={stats.items} 
-                    trend={trends.items}
                     color="from-emerald-400 to-emerald-600" 
                 />
                 <StatCard 
@@ -174,14 +156,12 @@ const Dashboard = () => {
                     title="Total Sales" 
                     value={stats.sales} 
                     subtitle={`Revenue: ${formatToINR(stats.revenue)}`}
-                    trend={trends.sales}
                     color="from-amber-400 to-amber-600" 
                 />
                 <StatCard 
                     icon={List} 
                     title="Active Listings" 
                     value={stats.listings} 
-                    trend={trends.listings}
                     color="from-violet-400 to-violet-600" 
                 />
             </div>
