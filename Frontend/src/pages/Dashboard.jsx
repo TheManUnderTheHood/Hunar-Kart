@@ -8,49 +8,39 @@ import { Users, ShoppingBag, DollarSign, List, TrendingUp, ArrowUpRight, Sparkle
 
 const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
     <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:scale-[1.02] hover:-translate-y-1">
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        
         {/* Content */}
-        <div className="relative z-10 flex flex-col h-full">
+        <div className="relative z-10 flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between text-text-secondary mb-4">
-                <h3 className="font-semibold text-sm uppercase tracking-wide">{title}</h3>
-                <div className={`p-2 rounded-xl bg-gradient-to-br ${color} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
-                    <Icon className="h-5 w-5 text-white" />
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-text-secondary">{title}</h3>
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${color} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
+                    <Icon className="h-6 w-6 text-white" />
                 </div>
             </div>
 
             {/* Main value */}
             <div className="flex items-baseline gap-2 mb-2">
-                <p className="text-3xl font-bold text-text-primary group-hover:text-primary transition-colors duration-300">
+                <p className="text-4xl font-bold text-text-primary group-hover:text-primary transition-colors duration-300">
                     {typeof value === 'number' ? value.toLocaleString() : value}
                 </p>
                 {trend && (
                     <div className="flex items-center gap-1 text-green-500">
                         <TrendingUp className="h-4 w-4" />
-                        <span className="text-sm font-medium">{trend}</span>
+                        <span className="text-sm font-semibold">{trend}</span>
                     </div>
                 )}
             </div>
 
             {/* Subtitle */}
             {subtitle && (
-                <p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors duration-300">
+                <p className="text-sm text-text-secondary group-hover:text-text-primary transition-colors duration-300 mt-1">
                     {subtitle}
                 </p>
             )}
-
-            {/* Decorative element */}
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
-                <ArrowUpRight className="h-8 w-8 text-primary" />
-            </div>
         </div>
 
-        {/* Animated border */}
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/20 via-transparent to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-            <div className="absolute inset-[1px] rounded-lg bg-background"></div>
-        </div>
+        {/* Subtle hover background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
     </Card>
 );
 
