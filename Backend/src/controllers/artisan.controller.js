@@ -9,10 +9,8 @@ import { PlatformListing } from "../models/PlatformListing.model.js";
 import { uploadOnCloudinary, removeFromCloudinary } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 
-/**
- * @description Creates a new artisan, optionally uploading an avatar.
- */
 const createArtisan = asyncHandler(async (req, res) => {
+    // 'craft' has been removed from here
     const { name, address, contactNumber, aadhaarCardNumber } = req.body;
 
     if (!name || !address || !contactNumber) {
@@ -24,36 +22,28 @@ const createArtisan = asyncHandler(async (req, res) => {
 
     if (avatarLocalPath) {
         avatarResponse = await uploadOnCloudinary(avatarLocalPath);
-        if (!avatarResponse) {
-            throw new ApiError(500, "Error while uploading avatar to cloud service.");
-        }
+        if (!avatarResponse) throw new ApiError(500, "Avatar upload failed.");
     }
 
     const artisan = await Artisan.create({
         name,
         address,
         contactNumber,
-        aadhaarCardNumber: aadhaarCardNumber || undefined, // Ensure empty string becomes undefined
+        aadhaarCardNumber: aadhaarCardNumber || undefined,
         avatar: avatarResponse?.url || "",
         avatarPublicId: avatarResponse?.public_id || ""
     });
 
     if (!artisan) {
-        if (avatarResponse) {
-            await removeFromCloudinary(avatarResponse.public_id);
-        }
+        if (avatarResponse) await removeFromCloudinary(avatarResponse.public_id);
         throw new ApiError(500, "Failed to create the artisan in the database");
     }
 
-    return res.status(201).json(
-        new ApiResponse(201, artisan, "Artisan created successfully")
-    );
+    return res.status(201).json(new ApiResponse(201, artisan, "Artisan created successfully"));
 });
 
-/**
- * @description Updates an existing artisan's details, handles new avatar uploads, and cleans up old avatars.
- */
 const updateArtisan = asyncHandler(async (req, res) => {
+    // 'craft' has been removed from here
     const { name, address, contactNumber, aadhaarCardNumber } = req.body;
     const { artisanId } = req.params;
 
@@ -61,195 +51,115 @@ const updateArtisan = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid Artisan ID");
     }
 
-    const existingArtisan = await Artisan.findById(artisanId);
-    if (!existingArtisan) {
+    const artisanToUpdate = await Artisan.findById(artisanId);
+    if (!artisanToUpdate) {
         throw new ApiError(404, "Artisan not found");
     }
-
-    const updateData = {
-        ...(name && { name }),
-        ...(address && { address }),
-        ...(contactNumber && { contactNumber }),
-        // --- FIX: Handle empty string for optional unique field ---
-        aadhaarCardNumber: aadhaarCardNumber === '' ? undefined : (aadhaarCardNumber || existingArtisan.aadhaarCardNumber)
-    };
     
-    if (req.file) {
-        const avatarLocalPath = req.file.path;
-        const newAvatar = await uploadOnCloudinary(avatarLocalPath);
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (address) updateData.address = address;
+    if (contactNumber) updateData.contactNumber = contactNumber;
+    if (aadhaarCardNumber === '' || aadhaarCardNumber) {
+         updateData.aadhaarCardNumber = aadhaarCardNumber || undefined;
+    }
 
-        if (!newAvatar?.url) {
-            throw new ApiError(500, "Error while uploading new avatar.");
-        }
+    if (req.file) {
+        const newAvatar = await uploadOnCloudinary(req.file.path);
+        if (!newAvatar?.url) throw new ApiError(500, "New avatar upload failed.");
 
         updateData.avatar = newAvatar.url;
         updateData.avatarPublicId = newAvatar.public_id;
 
-        // --- FIX: Add robust check before trying to delete the old avatar ---
-        // Only try to remove the old file if a publicId exists and is a non-empty string.
-        if (existingArtisan.avatarPublicId && typeof existingArtisan.avatarPublicId === 'string') {
-            try {
-                await removeFromCloudinary(existingArtisan.avatarPublicId);
-            } catch (e) {
-                // Log the error but don't crash the server if old file deletion fails
-                console.error("Failed to delete old avatar from Cloudinary, but continuing with update:", e.message);
-            }
+        if (artisanToUpdate.avatarPublicId) {
+            await removeFromCloudinary(artisanToUpdate.avatarPublicId).catch(err => 
+                console.error("Non-fatal: Failed to delete old avatar:", err)
+            );
         }
     }
 
-    const artisan = await Artisan.findByIdAndUpdate(
+    const updatedArtisan = await Artisan.findByIdAndUpdate(
         artisanId,
         { $set: updateData },
-        { new: true } 
+        { new: true }
     );
 
-    return res.status(200).json(
-        new ApiResponse(200, artisan, "Artisan updated successfully")
-    );
+    return res.status(200).json(new ApiResponse(200, updatedArtisan, "Artisan updated successfully"));
+});
+
+const getPublicArtisans = asyncHandler(async (req, res) => {
+    const artisans = await Artisan.find({})
+        .sort({ createdAt: -1 })
+        .limit(8)
+        // 'craft' has been removed from the select statement
+        .select("name address avatar"); 
+
+    if (!artisans) throw new ApiError(404, "Could not find any artisans.");
+    return res.status(200).json(new ApiResponse(200, { artisans }, "Public artisans fetched successfully"));
 });
 
 
-/**
- * @description Deletes an artisan and all their related data, including files on Cloudinary.
- */
+// --- NO CHANGES NEEDED FOR THE FUNCTIONS BELOW, BUT INCLUDED FOR COMPLETENESS ---
 const deleteArtisan = asyncHandler(async (req, res) => {
     const { artisanId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(artisanId)) {
-        throw new ApiError(400, "Invalid Artisan ID");
-    }
-
+    if (!mongoose.Types.ObjectId.isValid(artisanId)) throw new ApiError(400, "Invalid Artisan ID");
     const session = await mongoose.startSession();
-
     try {
         session.startTransaction();
-
         const artisan = await Artisan.findById(artisanId).session(session);
-        if (!artisan) {
-            throw new ApiError(404, "Artisan not found");
-        }
-
-        if (artisan.avatarPublicId) {
-            await removeFromCloudinary(artisan.avatarPublicId);
-        }
-        
+        if (!artisan) throw new ApiError(404, "Artisan not found");
+        if (artisan.avatarPublicId) await removeFromCloudinary(artisan.avatarPublicId);
         const agreements = await AgreementDocument.find({ artisanID: artisanId }).session(session);
         if (agreements.length > 0) {
             const agreementPublicIds = agreements.map(doc => doc.filePathPublicId).filter(id => id);
-            if (agreementPublicIds.length > 0) {
-                await Promise.all(agreementPublicIds.map(id => removeFromCloudinary(id))); 
-            }
+            if (agreementPublicIds.length > 0) await Promise.all(agreementPublicIds.map(id => removeFromCloudinary(id)));
             await AgreementDocument.deleteMany({ artisanID: artisanId }).session(session);
         }
-
         const items = await HandcraftedItem.find({ artisanID: artisanId }).select('_id').session(session);
         const itemIds = items.map(item => item._id);
-
         if (itemIds.length > 0) {
             await PlatformListing.deleteMany({ itemID: { $in: itemIds } }).session(session);
             await HandcraftedItem.deleteMany({ artisanID: artisanId }).session(session);
         }
-
         await Sale.deleteMany({ artisanID: artisanId }).session(session);
         await Artisan.findByIdAndDelete(artisanId).session(session);
-
         await session.commitTransaction();
-        
-        return res.status(200).json(
-            new ApiResponse(200, {}, "Artisan and all related data deleted successfully")
-        );
-
+        return res.status(200).json(new ApiResponse(200, {}, "Artisan and all related data deleted successfully"));
     } catch (error) {
         await session.abortTransaction();
         console.error("Artisan Deletion Error:", error);
-        throw new ApiError(
-            error.statusCode || 500, 
-            error.message || "An error occurred while deleting the artisan and related data."
-        );
+        throw new ApiError(error.statusCode || 500, error.message || "An error occurred during deletion.");
     } finally {
         session.endSession();
     }
 });
 
-
-/**
- * @description Retrieves all artisans, sorted by most recently created.
- */
 const getAllArtisans = asyncHandler(async (req, res) => {
     const artisans = await Artisan.find({}).sort({ createdAt: -1 });
-
-    return res.status(200).json(
-        new ApiResponse(200, { count: artisans.length, artisans: artisans }, "Artisans retrieved successfully")
-    );
+    return res.status(200).json(new ApiResponse(200, { count: artisans.length, artisans }, "Artisans retrieved successfully"));
 });
 
-/**
- * @description Retrieves a single artisan by their ID.
- */
 const getArtisanById = asyncHandler(async (req, res) => {
     const { artisanId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(artisanId)) {
-        throw new ApiError(400, "Invalid Artisan ID format");
-    }
-
+    if (!mongoose.Types.ObjectId.isValid(artisanId)) throw new ApiError(400, "Invalid Artisan ID format");
     const artisan = await Artisan.findById(artisanId);
-
-    if (!artisan) {
-        throw new ApiError(404, "Artisan not found");
-    }
-
-    return res.status(200).json(
-        new ApiResponse(200, artisan, "Artisan fetched successfully")
-    );
+    if (!artisan) throw new ApiError(404, "Artisan not found");
+    return res.status(200).json(new ApiResponse(200, artisan, "Artisan fetched successfully"));
 });
 
-/**
- * @description Retrieves a list of artisans for public display, without authentication.
- */
-const getPublicArtisans = asyncHandler(async (req, res) => {
-    const artisans = await Artisan.find({})
-        .sort({ createdAt: -1 })
-        .limit(8)
-        .select("name address avatar craft"); // Only send public-safe data
-
-    if (!artisans) {
-        throw new ApiError(404, "Could not find any artisans.");
-    }
-
-    return res.status(200).json(
-        new ApiResponse(200, { artisans }, "Public artisans fetched successfully")
-    );
-});
-
-/**
- * @description Retrieves all sales records for a specific artisan.
- */
 const getArtisanSales = asyncHandler(async (req, res) => {
     const { artisanId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(artisanId)) {
-        throw new ApiError(400, "Invalid Artisan ID");
-    }
-
-    const sales = await Sale.find({ artisanID: artisanId })
-        .populate("itemID", "name price")
-        .sort({ date: -1 });
-
+    if (!mongoose.Types.ObjectId.isValid(artisanId)) throw new ApiError(400, "Invalid Artisan ID");
+    const sales = await Sale.find({ artisanID: artisanId }).populate("itemID", "name price").sort({ date: -1 });
     const totalRevenue = sales.reduce((acc, sale) => acc + sale.totalRevenue, 0);
-
-    return res.status(200).json(
-        new ApiResponse(
-            200, 
-            { count: sales.length, totalRevenue, sales }, 
-            "Artisan sales data fetched successfully"
-        )
-    );
+    return res.status(200).json(new ApiResponse(200, { count: sales.length, totalRevenue, sales }, "Artisan sales data fetched successfully"));
 });
 
-export { 
-    createArtisan, 
-    getAllArtisans, 
-    getArtisanById, 
-    updateArtisan, 
+export {
+    createArtisan,
+    getAllArtisans,
+    getArtisanById,
+    updateArtisan,
     deleteArtisan,
     getArtisanSales,
     getPublicArtisans
