@@ -9,52 +9,36 @@ import { PlatformListing } from "../models/PlatformListing.model.js";
 import { uploadOnCloudinary, removeFromCloudinary } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 
+// The `createArtisan` function remains the same.
 const createArtisan = asyncHandler(async (req, res) => {
-    // 'craft' has been removed from here
     const { name, address, contactNumber, aadhaarCardNumber } = req.body;
-
-    if (!name || !address || !contactNumber) {
-        throw new ApiError(400, "Name, address, and contact number are required");
-    }
-
+    if (!name || !address || !contactNumber) throw new ApiError(400, "Name, address, and contact number are required");
     const avatarLocalPath = req.file?.path;
     let avatarResponse;
-
     if (avatarLocalPath) {
         avatarResponse = await uploadOnCloudinary(avatarLocalPath);
         if (!avatarResponse) throw new ApiError(500, "Avatar upload failed.");
     }
-
     const artisan = await Artisan.create({
-        name,
-        address,
-        contactNumber,
+        name, address, contactNumber,
         aadhaarCardNumber: aadhaarCardNumber || undefined,
         avatar: avatarResponse?.url || "",
         avatarPublicId: avatarResponse?.public_id || ""
     });
-
     if (!artisan) {
         if (avatarResponse) await removeFromCloudinary(avatarResponse.public_id);
         throw new ApiError(500, "Failed to create the artisan in the database");
     }
-
     return res.status(201).json(new ApiResponse(201, artisan, "Artisan created successfully"));
 });
 
 const updateArtisan = asyncHandler(async (req, res) => {
-    // 'craft' has been removed from here
     const { name, address, contactNumber, aadhaarCardNumber } = req.body;
     const { artisanId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(artisanId)) {
-        throw new ApiError(400, "Invalid Artisan ID");
-    }
+    if (!mongoose.Types.ObjectId.isValid(artisanId)) throw new ApiError(400, "Invalid Artisan ID");
 
     const artisanToUpdate = await Artisan.findById(artisanId);
-    if (!artisanToUpdate) {
-        throw new ApiError(404, "Artisan not found");
-    }
+    if (!artisanToUpdate) throw new ApiError(404, "Artisan not found");
     
     const updateData = {};
     if (name) updateData.name = name;
@@ -71,35 +55,18 @@ const updateArtisan = asyncHandler(async (req, res) => {
         updateData.avatar = newAvatar.url;
         updateData.avatarPublicId = newAvatar.public_id;
 
+        // This call is now safe because the utility is robust.
         if (artisanToUpdate.avatarPublicId) {
-            await removeFromCloudinary(artisanToUpdate.avatarPublicId).catch(err => 
-                console.error("Non-fatal: Failed to delete old avatar:", err)
-            );
+            await removeFromCloudinary(artisanToUpdate.avatarPublicId);
         }
     }
 
-    const updatedArtisan = await Artisan.findByIdAndUpdate(
-        artisanId,
-        { $set: updateData },
-        { new: true }
-    );
-
+    const updatedArtisan = await Artisan.findByIdAndUpdate(artisanId, { $set: updateData }, { new: true });
     return res.status(200).json(new ApiResponse(200, updatedArtisan, "Artisan updated successfully"));
 });
 
-const getPublicArtisans = asyncHandler(async (req, res) => {
-    const artisans = await Artisan.find({})
-        .sort({ createdAt: -1 })
-        .limit(8)
-        // 'craft' has been removed from the select statement
-        .select("name address avatar"); 
-
-    if (!artisans) throw new ApiError(404, "Could not find any artisans.");
-    return res.status(200).json(new ApiResponse(200, { artisans }, "Public artisans fetched successfully"));
-});
-
-
-// --- NO CHANGES NEEDED FOR THE FUNCTIONS BELOW, BUT INCLUDED FOR COMPLETENESS ---
+// The rest of the controller functions (delete, getAll, etc.) remain unchanged.
+// Included here for completeness.
 const deleteArtisan = asyncHandler(async (req, res) => {
     const { artisanId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(artisanId)) throw new ApiError(400, "Invalid Artisan ID");
@@ -145,6 +112,15 @@ const getArtisanById = asyncHandler(async (req, res) => {
     const artisan = await Artisan.findById(artisanId);
     if (!artisan) throw new ApiError(404, "Artisan not found");
     return res.status(200).json(new ApiResponse(200, artisan, "Artisan fetched successfully"));
+});
+
+const getPublicArtisans = asyncHandler(async (req, res) => {
+    const artisans = await Artisan.find({})
+        .sort({ createdAt: -1 })
+        .limit(8)
+        .select("name address avatar");
+    if (!artisans) throw new ApiError(404, "Could not find any artisans.");
+    return res.status(200).json(new ApiResponse(200, { artisans }, "Public artisans fetched successfully"));
 });
 
 const getArtisanSales = asyncHandler(async (req, res) => {

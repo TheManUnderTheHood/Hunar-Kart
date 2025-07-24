@@ -1,47 +1,62 @@
-import {v2 as cloudinary} from "cloudinary"
-import fs from "fs"
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
-cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-  api_key: process.env.CLOUDINARY_API_KEY, 
-  api_secret: process.env.CLOUDINARY_API_SECRET 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 const uploadOnCloudinary = async (localFilePath) => {
     try {
-        if (!localFilePath) return null
-        //upload the file on cloudinary
-        const response = await cloudinary.uploader.upload(localFilePath, 
-        {
+        if (!localFilePath) return null;
+
+        const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: "auto"
-        })
-        // file has been uploaded successfull
-        fs.unlinkSync(localFilePath)
+        });
+
+        // File has been uploaded successfully, now remove the local copy
+        fs.unlinkSync(localFilePath);
         return response;
 
     } catch (error) {
+        console.error("Cloudinary Upload Error:", error);
+        // Ensure local file is removed even if upload fails
         if (fs.existsSync(localFilePath)) {
-            fs.unlinkSync(localFilePath) // remove the locally saved temporary file as the upload operation got failed
+            fs.unlinkSync(localFilePath);
         }
         return null;
     }
-}
+};
 
 const removeFromCloudinary = async (publicId) => {
-    try {
-        if(!publicId){
-            throw new Error("Public ID is required")
-        }
-
-        const result = await cloudinary.uploader.destroy(publicId, {
-            resource_type: "auto",
-        });
-
-        return result;
-    } 
-    catch (error) {
+    // --- START OF FIX ---
+    // 1. Immediately return if publicId is missing to prevent errors.
+    if (!publicId) {
+        console.log("No publicId provided to removeFromCloudinary.");
         return null;
     }
-}
 
-export { uploadOnCloudinary, removeFromCloudinary }
+    try {
+        // 2. Be explicit with the resource type. For avatars, it's "image".
+        const result = await cloudinary.uploader.destroy(publicId, {
+            resource_type: "image",
+        });
+
+        if (result.result === 'ok') {
+            console.log("Successfully deleted resource from Cloudinary:", publicId);
+        } else {
+             console.log("Cloudinary deletion status not 'ok':", result.result);
+        }
+        
+        return result;
+
+    } catch (error) {
+        // 3. Log the specific error but DO NOT crash the server.
+        console.error("Error removing file from Cloudinary:", error.message);
+        return null; // Return null to indicate failure without crashing.
+    }
+    // --- END OF FIX ---
+};
+
+export { uploadOnCloudinary, removeFromCloudinary };
