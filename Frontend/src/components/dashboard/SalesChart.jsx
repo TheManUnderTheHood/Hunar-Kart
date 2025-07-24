@@ -13,6 +13,7 @@ const SalesChart = ({ data }) => {
         fill: '#0ea5e9',        // sky-500
         background: '#ffffff',  // white
         textPrimary: '#1e293b', // slate-800
+        hoverFill: '#0ea5e91a', // sky-500 with 10% opacity
     };
 
     const darkModeColors = {
@@ -21,6 +22,7 @@ const SalesChart = ({ data }) => {
         fill: '#0ea5e9',        // sky-500
         background: '#1e293b',  // slate-800
         textPrimary: '#f8fafc', // slate-50
+        hoverFill: '#0ea5e91a', // sky-500 with 10% opacity
     };
 
     // Select the correct color scheme based on the current theme
@@ -57,7 +59,7 @@ const SalesChart = ({ data }) => {
                             tickFormatter={(value) => `₹${new Intl.NumberFormat('en-IN').format(value)}`} 
                         />
                         <Tooltip
-                            cursor={{ fill: 'hsla(var(--color-primary), 0.1)' }}
+                            cursor={{ fill: currentChartColors.hoverFill }}
                             contentStyle={{
                                 background: currentChartColors.background,
                                 border: `1px solid ${currentChartColors.grid}`,
