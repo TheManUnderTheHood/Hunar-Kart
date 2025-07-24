@@ -1,6 +1,20 @@
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
+
+    useEffect(() => {
+        if (isOpen) {
+
+            document.body.classList.add('overflow-hidden');
+        } else {
+            document.body.classList.remove('overflow-hidden');
+        }
+        return () => {
+            document.body.classList.remove('overflow-hidden');
+        };
+    }, [isOpen]); 
+
     if (!isOpen) return null;
 
     return (
@@ -24,7 +38,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                             <X className="w-5 h-5"/>
                         </button>
                     </div>
-                    <div className="mt-4 flex-1 overflow-y-auto">
+                    <div className="mt-4 flex-1 overflow-y-auto pr-2">
                         {children}
                     </div>
                 </div>
