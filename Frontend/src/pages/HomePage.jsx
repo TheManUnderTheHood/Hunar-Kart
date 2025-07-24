@@ -136,8 +136,7 @@ const TopArtisansSection = () => {
     useEffect(() => {
         const fetchTopArtisans = async () => {
             try {
-                // Fetch a small, public list of artisans for the homepage
-                const response = await apiClient.get('/artisans?limit=8'); // Fetch a few more in case of bad data
+                const response = await apiClient.get('/artisans/public'); 
                 setArtisans(response.data.data.artisans || []);
             } catch (err) {
                 console.error("Failed to fetch top artisans:", err);

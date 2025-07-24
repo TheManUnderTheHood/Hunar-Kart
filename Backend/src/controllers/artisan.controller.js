@@ -202,6 +202,20 @@ const getArtisanSales = asyncHandler(async (req, res) => {
     );
 });
 
+const getPublicArtisans = asyncHandler(async (req, res) => {
+    const artisans = await Artisan.find({})
+        .sort({ createdAt: -1 })
+        .limit(4)
+        .select("name address avatar craft");
+
+    if (!artisans) {
+        throw new ApiError(404, "Could not find any artisans.");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, { artisans }, "Public artisans fetched successfully")
+    );
+});
 
 export { 
     createArtisan, 
@@ -209,5 +223,6 @@ export {
     getArtisanById, 
     updateArtisan, 
     deleteArtisan,
-    getArtisanSales 
+    getArtisanSales,
+    getPublicArtisans // <-- Add this to your exports
 };

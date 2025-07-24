@@ -5,6 +5,7 @@ import {
     getArtisanById,
     updateArtisan,
     deleteArtisan,
+    getPublicArtisans,
     getArtisanSales
 } from "../controllers/artisan.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -12,6 +13,7 @@ import { upload } from '../middlewares/multer.middleware.js';
 
 const router = Router();
 
+router.route("/public").get(getPublicArtisans);
 // Protect all artisan routes
 router.use(verifyJWT);
 
