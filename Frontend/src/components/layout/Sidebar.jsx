@@ -3,7 +3,7 @@ import useAuth from '../../hooks/useAuth';
 import { LayoutDashboard, Users, ShoppingBag, DollarSign, List, FileText, Gem, UserCog, ChevronRight } from 'lucide-react';
 
 const navItems = [ 
-    { to: "/", icon: LayoutDashboard, label: "Dashboard" }, 
+    { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" }, 
     { to: "/artisans", icon: Users, label: "Artisans" }, 
     { to: "/items", icon: ShoppingBag, label: "Items" }, 
     { to: "/listings", icon: List, label: "Listings" }, 
