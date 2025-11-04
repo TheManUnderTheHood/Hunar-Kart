@@ -16,5 +16,4 @@ const Input = ({ id, type = "text", placeholder, className = '', ...props }) => 
     />
   );
 };
-
 export default Input;
