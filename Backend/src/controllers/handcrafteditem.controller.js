@@ -1,3 +1,4 @@
+
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -27,7 +28,6 @@ const createHandcraftedItem = asyncHandler(async (req, res) => {
     if (!item) {
         throw new ApiError(500, "Failed to create the handcrafted item");
     }
-
     return res.status(201).json(
         new ApiResponse(201, item, "Handcrafted item created successfully")
     );
@@ -48,7 +48,6 @@ const getHandcraftedItemById = asyncHandler(async (req, res) => {
     }
 
     const item = await HandcraftedItem.findById(itemId).populate("artisanID", "name");
-
     if (!item) {
         throw new ApiError(404, "Handcrafted item not found");
     }
