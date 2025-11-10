@@ -1,3 +1,4 @@
+
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -26,7 +27,6 @@ const createSale = asyncHandler(async (req, res) => {
     if (item.quantity < quantitySold) {
         throw new ApiError(400, `Not enough stock. Only ${item.quantity} items available.`);
     }
-
     const sale = await Sale.create({
         itemID,
         artisanID,
@@ -34,7 +34,6 @@ const createSale = asyncHandler(async (req, res) => {
         quantitySold,
         totalRevenue,
     });
-
     if (!sale) {
         throw new ApiError(500, "Failed to record the sale");
     }
@@ -49,7 +48,6 @@ const createSale = asyncHandler(async (req, res) => {
         new ApiResponse(201, sale, "Sale recorded successfully")
     );
 });
-
 const getAllSale = asyncHandler(async (req, res) => {
     const sales = await Sale.find({})
         .populate("itemID", "name category price")
