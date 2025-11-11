@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 const agreementDocumentSchema = new mongoose.Schema({
   artisanID: { 
     type: mongoose.Schema.Types.ObjectId, 
@@ -30,5 +29,6 @@ const agreementDocumentSchema = new mongoose.Schema({
     }
   }
 }, { timestamps: true });
+
 
 export const AgreementDocument = mongoose.model('AgreementDocument', agreementDocumentSchema);
