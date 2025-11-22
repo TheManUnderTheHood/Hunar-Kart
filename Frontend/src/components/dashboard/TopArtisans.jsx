@@ -12,12 +12,12 @@ const TopArtisans = React.memo(({ sales = [], artisans = [], isLoading = false, 
         // Create a map for faster artisan lookup
         const artisanMap = new Map(artisans.map(artisan => [artisan._id, artisan]));
         
-        // Calculate revenue per artisan with error handling
+        // Accumulate revenue and sales count per artisan
         const artisanRevenue = sales.reduce((acc, sale) => {
             try {
                 const artisanId = sale?.artisanID?._id;
                 if (!artisanId || typeof sale.totalRevenue !== 'number') return acc;
-
+                // Initialize entry if not present
                 if (!acc[artisanId]) {
                     const artisan = artisanMap.get(artisanId);
                     acc[artisanId] = {
@@ -28,7 +28,8 @@ const TopArtisans = React.memo(({ sales = [], artisans = [], isLoading = false, 
                         averageOrderValue: 0,
                     };
                 }
-                
+
+                //Update revenue and counts
                 acc[artisanId].revenue += sale.totalRevenue;
                 acc[artisanId].salesCount += 1;
                 acc[artisanId].averageOrderValue = acc[artisanId].revenue / acc[artisanId].salesCount;
@@ -84,7 +85,7 @@ const TopArtisans = React.memo(({ sales = [], artisans = [], isLoading = false, 
         );
     }
 
-    // Error state
+    // UI : Error state
     if (error) {
         return (
             <Card className="col-span-1" role="alert">
@@ -104,7 +105,7 @@ const TopArtisans = React.memo(({ sales = [], artisans = [], isLoading = false, 
         );
     }
 
-    // Empty state
+    // UI : Empty state
     if (!topArtisans.length) {
         return (
             <Card className="col-span-1">
@@ -123,6 +124,7 @@ const TopArtisans = React.memo(({ sales = [], artisans = [], isLoading = false, 
         );
     }
 
+    // MAIN UI : Ranked list Artisan list
     return (
         <Card className="col-span-1">
             <h2 className="text-xl font-semibold text-text-primary mb-4 flex items-center gap-2">
@@ -196,6 +198,7 @@ const TopArtisans = React.memo(({ sales = [], artisans = [], isLoading = false, 
 
 TopArtisans.displayName = 'TopArtisans';
 
+// Prop Validation for component inputs
 TopArtisans.propTypes = {
     sales: PropTypes.arrayOf(
         PropTypes.shape({
