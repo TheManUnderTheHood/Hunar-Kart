@@ -5,16 +5,22 @@ import Button from "../ui/Button";
 import ThemeToggle from "../ui/ThemeToggle";
 import { LogOut, User, ChevronDown, Sparkles } from "lucide-react";
 
+// Header component
 const Header = () => {
     const { user, logout } = useAuth();
+    
+    // Tracks logout button loading state
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    // Tracks dropdown arrow animation based on hover state
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+    // Handle User logout with loading indication
     const handleLogout = async () => {
         setIsLoggingOut(true);
         await logout();
     };
-
+    
     const getGreeting = () => {
         const hour = new Date().getHours();
         if (hour < 12) return "Good Morning";
