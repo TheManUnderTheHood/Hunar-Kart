@@ -1,9 +1,12 @@
+// Input component
 const Input = ({ id, type = "text", placeholder, className = '', ...props }) => {
   return (
     <input
       id={id}
       type={type}
       placeholder={placeholder}
+      
+      // Base styling for consistent UI across the platform
       className={`
         block w-full rounded-md border-0 bg-background-offset/50 py-2.5 px-4 text-text-primary 
         shadow-sm ring-1 ring-inset ring-border placeholder:text-text-secondary/60
