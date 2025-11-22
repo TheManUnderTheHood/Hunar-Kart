@@ -1,5 +1,6 @@
 import Spinner from "./Spinner";
 
+// Button component 
 const Button = ({ children, variant = 'primary', loading = false, className = '', ...props }) => {
     const variantClasses = {
         primary: 'btn-primary',
